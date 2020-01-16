@@ -28,11 +28,14 @@ SOFTWARE.
 class StepperMotorManager : public Manager
 {
 private:
-
 public:
   static StepperMotorManager ACTIVE_INSTANCE; // Create a static Active Instance for the Limit Switches Manager
   StepperMotor fStepperMotorX, fStepperMotorY, fStepperMotorZ, fStepperMotorA;
   void Initialize();
+
+  void HomeXAxis();
+  void HomeYAxis();
+  void HomeZAxis();
 
   // Stepper Motor Manager Events
   void OnLimitSwitchTrigger_EventHandler(); // This is to override the virtual OnLImitSwitchTrigger_Handler of the Manager parent
@@ -46,11 +49,26 @@ void StepperMotorManager::Initialize()
   // Call the parent Initialize
   Manager::Initialize();
 
-  // Initialize 4 Stepper motor (X,Y,Z and A axis)
+  // Initialize 4 Stepper motors (X,Y,Z and A axis)
   fStepperMotorX.Initialize(STEPPER_X_STEP_PIN, STEPPER_X_DIR_PIN, STEPPER_X_ENABLE_PIN, STEPPER_X_STEPS_PER_MM, STEPPER_X_ACCELERATION, STEPPER_X_MAX_VELOCITY);
   fStepperMotorY.Initialize(STEPPER_Y_STEP_PIN, STEPPER_Y_DIR_PIN, STEPPER_Y_ENABLE_PIN, STEPPER_Y_STEPS_PER_MM, STEPPER_Y_ACCELERATION, STEPPER_Y_MAX_VELOCITY);
   fStepperMotorY.Initialize(STEPPER_Z_STEP_PIN, STEPPER_Z_DIR_PIN, STEPPER_Z_ENABLE_PIN, STEPPER_Z_STEPS_PER_MM, STEPPER_Z_ACCELERATION, STEPPER_Z_MAX_VELOCITY);
   fStepperMotorY.Initialize(STEPPER_A_STEP_PIN, STEPPER_A_DIR_PIN, STEPPER_A_ENABLE_PIN, STEPPER_A_STEPS_PER_MM, STEPPER_A_ACCELERATION, STEPPER_A_MAX_VELOCITY);
+}
+
+void StepperMotorManager::HomeXAxis()
+{
+  // Move x motor until the Limit Switch is clicked
+}
+
+void StepperMotorManager::HomeYAxis()
+{
+  // Move Y motor until the Limit Switch is clicked
+}
+
+void StepperMotorManager::HomeZAxis()
+{
+  // Move Z motor until the Limit Switch is clicked
 }
 
 void StepperMotorManager::OnLimitSwitchTrigger_EventHandler()

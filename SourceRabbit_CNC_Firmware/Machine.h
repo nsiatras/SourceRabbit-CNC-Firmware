@@ -38,7 +38,12 @@ public:
     void Initialize();
     static Machine ACTIVE_INSTANCE; // Create a static Active Instance for the Machine
 
+    void SendStatusReportToPCClient();
+
     void StartHomingSequence();
+    void HomeXAxis();
+    void HomeYAxis();
+    void HomeZAxis();
 
     String getCurrentStatusInStringFormat();
     String getMachinePositionStatusString();
@@ -73,9 +78,10 @@ void Machine::StartHomingSequence()
     // Set machine status to homing
     fCurrentMachineStatus = MACHINESTATUS_HOMING;
 
-    fMachineXPosition = MAX_X_TRAVEL * -1;
-    fMachineYPosition = MAX_Y_TRAVEL * -1;
-    fMachineZPosition = MAX_Z_TRAVEL * -1;
+    // First Home the Z Axis
+    HomeZAxis();
+    HomeXAxis();
+    HomeYAxis();
 
     fWorkXPosition = 0;
     fWorkYPosition = 0;
@@ -85,6 +91,42 @@ void Machine::StartHomingSequence()
     // Set machine status to idle and
     // ask the Status Report Manager to send a new status report to the pc client
     fCurrentMachineStatus = MACHINESTATUS_IDLE;
+}
+
+void Machine::HomeXAxis()
+{
+    // Ask the Stepper Motor Manager to Home the X Axis
+    StepperMotorManager::ACTIVE_INSTANCE.HomeXAxis();
+
+#ifdef HOME_X_TO_MAX
+    fMachineXPosition = MAX_X_TRAVEL * -1;
+#else
+    fMachineXPosition = 0;
+#endif
+}
+
+void Machine::HomeYAxis()
+{
+    // Ask the Stepper Motor Manager to Home the Y Axis
+    StepperMotorManager::ACTIVE_INSTANCE.HomeYAxis();
+
+#ifdef HOME_Y_TO_MAX
+    fMachineYPosition = MAX_Y_TRAVEL * -1;
+#else
+    fMachineYPosition = 0;
+#endif
+}
+
+void Machine::HomeZAxis()
+{
+    // Ask the Stepper Motor Manager to Home the X Axis
+    StepperMotorManager::ACTIVE_INSTANCE.HomeZAxis();
+
+#ifdef HOME_Z_TO_MAX
+    fMachineZPosition = MAX_Z_TRAVEL * -1;
+#else
+    fMachineZPosition = 0;
+#endif
 }
 
 String Machine::getCurrentStatusInStringFormat()
@@ -118,6 +160,31 @@ String Machine::getMachinePositionStatusString()
     result += "|";
     result += String(fWorkXPosition) + "," + String(fWorkYPosition) + "," + String(fWorkZPosition) + "," + String(fWorkAPosition);
     return result;
+}
+
+void Machine::SendStatusReportToPCClient()
+{
+    // Generate the status report string
+    // And send it to the PC Client
+    // Notice: The status report string is like the following
+    // Example: <idle|0.000,0.000,0.000,0.000|0.000,0.000,0.000,,0.000|L|P>
+    String result = "<";
+
+    // Step 1. Get status
+    result += getCurrentStatusInStringFormat() + "|";
+
+    // Step 2. Get machine coordinates
+    result += getMachinePositionStatusString();
+
+    // Step 3. Limit Switches status
+    if (LimitSwitchesManager::ACTIVE_INSTANCE.fIsEnstopsTriggered)
+    {
+        result += "|L";
+    }
+
+    // Send status report string through serial
+    result += ">";
+    Serial.println(result);
 }
 
 #endif

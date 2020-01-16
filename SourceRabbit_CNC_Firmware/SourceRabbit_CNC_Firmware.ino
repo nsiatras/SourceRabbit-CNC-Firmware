@@ -25,14 +25,15 @@ SOFTWARE.
 #include "BoardPinout.h"
 #include "Config.h"
 #include "EMachineStatus.h"
-#include "Machine.h"
 #include "Events.h"
 #include "Manager.h"
 #include "SerialConnectionManager.h"
 #include "LimitSwitchesManager.h"
 #include "StepperMotorManager.h"
 #include "MotionController.h"
-#include "StatusReportManager.h"
+
+// MACHINE ALWAYS AT THE END
+#include "Machine.h"
 
 SerialConnectionManager *fSerialConnectionManager;
 
@@ -50,9 +51,6 @@ void setup()
     // Initialize Limit Switch Manager
     LimitSwitchesManager::ACTIVE_INSTANCE.fEventHandlerVoid = EventHandler;
     LimitSwitchesManager::ACTIVE_INSTANCE.Initialize();
-
-    StatusReportManager::ACTIVE_INSTANCE.fEventHandlerVoid = EventHandler;
-    StatusReportManager::ACTIVE_INSTANCE.Initialize();
 
     // Initialize the Machine
     Machine::ACTIVE_INSTANCE.Initialize();
@@ -73,8 +71,8 @@ void OnMessageReceivedFromSerialConnection(String message)
 {
     if (message == "?")
     {
-        // Ask the StatusReportManager to send a status report to the PC Client
-        StatusReportManager::ACTIVE_INSTANCE.SendStatusReportToPCClient();
+        // Ask Machine to send a status report to the PC Client
+        Machine::ACTIVE_INSTANCE.SendStatusReportToPCClient();
     }
     else if (message == "$H")
     {
