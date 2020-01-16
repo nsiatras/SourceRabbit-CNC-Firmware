@@ -62,6 +62,8 @@ SOFTWARE.
 // To enable the use of Limit Switches set the ENABLE_LIMIT_SWITCHES to 1
 // For Normally Closed limit switches (NC) set the ENABLE_LIMIT_SWITCHES to 1
 // For Normally Open (NO) limit switches set the ENABLE_LIMIT_SWITCHES to 0
+// Notice: After setting ENABLE_LIMIT_SWITCHES to 1 the machine
+// will require a homing cycle to get into idle status
 #define ENABLE_LIMIT_SWITCHES 1
 #define LIMIT_SWITCHES_ARE_NC 0
 

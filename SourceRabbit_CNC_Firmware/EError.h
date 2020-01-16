@@ -21,51 +21,11 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#ifndef MANAGER_H
-#define MANAGER_H
 
-class Manager
-{
-private:
-public:
-    virtual void Initialize();
+#ifndef EERROR
+#define EERROR
 
-    // Events...
-    void (*fEventHandlerVoid)(uint8_t);
-    void FireEvent(uint8_t eventID);
-
-    virtual void OnLimitSwitchOn_EventHandler();
-    virtual void OnLimitSwitchOff_EventHandler();
-    virtual void OnTouchProbeTouch_EventHandler();
-};
-
-void Manager::Initialize()
-{
-}
-
-void Manager::OnLimitSwitchOn_EventHandler()
-{
-    // This method is virtual
-    // No code required here
-}
-
-void Manager::OnLimitSwitchOff_EventHandler()
-{
-    // This method is virtual
-    // No code required here
-}
-
-void Manager::OnTouchProbeTouch_EventHandler()
-{
-    // This method is virtual
-    // No code required here
-}
-
-// Fire an eventID
-// This will go to void EventHandler inside SourceRabbit_CNC_Firmware.ino
-void Manager::FireEvent(uint8_t eventID)
-{
-    fEventHandlerVoid(eventID);
-}
+uint8_t ERROR_UNKOWN_COMMAND = 1; // Unkown command
+uint8_t MACHINE_IS_LOCKED = 2;    // Machine requires a homing cycle in order to unlock
 
 #endif

@@ -91,6 +91,8 @@ void Machine::StartHomingSequence()
     // Set machine status to idle and
     // ask the Status Report Manager to send a new status report to the pc client
     fCurrentMachineStatus = MACHINESTATUS_IDLE;
+
+    Serial.println("ok");
 }
 
 void Machine::HomeXAxis()
@@ -185,6 +187,7 @@ void Machine::SendStatusReportToPCClient()
     // Send status report string through serial
     result += ">";
     Serial.println(result);
+    Serial.println("ok");
 }
 
 #endif

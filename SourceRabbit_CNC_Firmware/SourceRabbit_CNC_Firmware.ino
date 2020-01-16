@@ -24,6 +24,7 @@ SOFTWARE.
 #include "Arduino.h"
 #include "BoardPinout.h"
 #include "Config.h"
+#include "EError.h"
 #include "EMachineStatus.h"
 #include "Events.h"
 #include "Manager.h"
@@ -39,6 +40,8 @@ SerialConnectionManager *fSerialConnectionManager;
 
 void setup()
 {
+    unsigned long microStart = micros();
+
     // Initialize Serial Communication Manager
     fSerialConnectionManager = new SerialConnectionManager();
     fSerialConnectionManager->fOnMessageReceivedFromSerialConnectionCall = OnMessageReceivedFromSerialConnection;
@@ -57,7 +60,14 @@ void setup()
 
     // EVERYTHING IS INITIALIZED
     // Send the welcome message to the PC Client
+    unsigned long microsEnd = micros();
     Serial.println(WELCOME_MESSAGE);
+
+#ifdef SHOW_DEBUG_MESSAGES
+    Serial.print("DEBUG:Initialized in ");
+    Serial.print(String(microsEnd - microStart));
+    Serial.println(" microseconds");
+#endif
 }
 
 void loop()
@@ -79,6 +89,11 @@ void OnMessageReceivedFromSerialConnection(String message)
         // Home the machine
         Machine::ACTIVE_INSTANCE.StartHomingSequence();
     }
+    else
+    {
+        // Send Unknown Command error to PC Client
+        Serial.println("error:" + String(ERROR_UNKOWN_COMMAND));
+    }
 }
 
 // This method is called only when a limit switch is triggered
@@ -86,12 +101,20 @@ void EventHandler(uint8_t eventID)
 {
     switch (eventID)
     {
-    case EVENT_LIMIT_SWITCH_TRIGGERED:
-        // A LIMIT SWITCH HAS BEEN TRIGGERED!
+    case EVENT_LIMIT_SWITCH_ON:
+        // A LIMIT SWITCH IS ON !
         // This event comes from the LimitSwitchesManager
         // INFORM ALL MANAGERS ABOUT IT
-        StepperMotorManager::ACTIVE_INSTANCE.OnLimitSwitchTrigger_EventHandler();
-        LimitSwitchesManager::ACTIVE_INSTANCE.OnLimitSwitchTrigger_EventHandler();
+        StepperMotorManager::ACTIVE_INSTANCE.OnLimitSwitchOn_EventHandler();
+        LimitSwitchesManager::ACTIVE_INSTANCE.OnLimitSwitchOn_EventHandler();
+        break;
+
+    case EVENT_LIMIT_SWITCH_OFF:
+        // A LIMIT SWITCH IS OFF !
+        // This event comes from the LimitSwitchesManager
+        // INFORM ALL MANAGERS ABOUT IT
+        StepperMotorManager::ACTIVE_INSTANCE.OnLimitSwitchOff_EventHandler();
+        LimitSwitchesManager::ACTIVE_INSTANCE.OnLimitSwitchOff_EventHandler();
         break;
 
     case EVENT_TOUCH_PROBE_TOUCH:

@@ -28,6 +28,8 @@ SOFTWARE.
 class StepperMotorManager : public Manager
 {
 private:
+  boolean fLimitSwitchIsOn = false;
+
 public:
   static StepperMotorManager ACTIVE_INSTANCE; // Create a static Active Instance for the Limit Switches Manager
   StepperMotor fStepperMotorX, fStepperMotorY, fStepperMotorZ, fStepperMotorA;
@@ -38,7 +40,8 @@ public:
   void HomeZAxis();
 
   // Stepper Motor Manager Events
-  void OnLimitSwitchTrigger_EventHandler(); // This is to override the virtual OnLImitSwitchTrigger_Handler of the Manager parent
+  void OnLimitSwitchOn_EventHandler(); // This is to override the virtual OnLImitSwitchTrigger_Handler of the Manager parent
+  void OnLimitSwitchOff_EventHandler();
 };
 
 StepperMotorManager StepperMotorManager::ACTIVE_INSTANCE; // Declare the static ACTIVE_INSTANCE
@@ -59,22 +62,53 @@ void StepperMotorManager::Initialize()
 void StepperMotorManager::HomeXAxis()
 {
   // Move x motor until the Limit Switch is clicked
+  while (!fLimitSwitchIsOn)
+  {
+    delay(100);
+  }
+
+#ifdef SHOW_DEBUG_MESSAGES
+  Serial.println("DEBUG:StepperMotorManager::HomeXAxis Finished!");
+#endif
 }
 
 void StepperMotorManager::HomeYAxis()
 {
-  // Move Y motor until the Limit Switch is clicked
+  while (!fLimitSwitchIsOn)
+  {
+    delay(100);
+  }
+
+#ifdef SHOW_DEBUG_MESSAGES
+  Serial.println("DEBUG:StepperMotorManager::HomeYAxis Finished!");
+#endif
 }
 
 void StepperMotorManager::HomeZAxis()
 {
-  // Move Z motor until the Limit Switch is clicked
+  while (!fLimitSwitchIsOn)
+  {
+    delay(100);
+  }
+
+#ifdef SHOW_DEBUG_MESSAGES
+  Serial.println("DEBUG:StepperMotorManager::HomeZAxis Finished!");
+#endif
 }
 
-void StepperMotorManager::OnLimitSwitchTrigger_EventHandler()
+void StepperMotorManager::OnLimitSwitchOn_EventHandler()
 {
+  fLimitSwitchIsOn = true;
 #ifdef SHOW_DEBUG_MESSAGES
-  Serial.println("DEBUG:StepperMotorManager::OnLimitSwitchTrigger_EventHandler");
+  Serial.println("DEBUG:StepperMotorManager::OnLimitSwitchOn_EventHandler");
+#endif
+}
+
+void StepperMotorManager::OnLimitSwitchOff_EventHandler()
+{
+  fLimitSwitchIsOn = false;
+#ifdef SHOW_DEBUG_MESSAGES
+  Serial.println("DEBUG:StepperMotorManager::OnLimitSwitchOff_EventHandler");
 #endif
 }
 
