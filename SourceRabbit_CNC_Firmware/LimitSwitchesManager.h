@@ -21,6 +21,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+#ifndef LIMITSWITCHESMANAGER_H
+#define LIMITSWITCHESMANAGER_H
 class LimitSwitchesManager : public Manager
 {
 
@@ -28,7 +30,9 @@ public:
     void Initialize();
     static LimitSwitchesManager ACTIVE_INSTANCE; // Create a static Active Instance for the Limit Switches Manager
     static void LimitSwitchStatusChanged();      // THIS HAS TO BE STATIC because it is using an attachInterrupt
-    static void LimitSwitchTriggered();          // THIS HAS TO BE STATIC because it is used from LimitSwitchStatusChanged
+
+    // Limit Switches Manager Events
+    void OnLimitSwitchTrigger_EventHandler();
 };
 
 LimitSwitchesManager LimitSwitchesManager::ACTIVE_INSTANCE; // Declare the static ACTIVE_INSTANCE
@@ -63,13 +67,19 @@ void LimitSwitchesManager::LimitSwitchStatusChanged()
     if (LIMIT_SWITCHES_ARE_NC == 1 && val == 1)
     {
         // Limit switches are in NC Mode
-        // Call the FireOnLimitSwitchTrigger method
-        LimitSwitchesManager::ACTIVE_INSTANCE.FireOnLimitSwitchTrigger();
+        // Fire the EVENT_LIMIT_SWITCH_TRIGGERED
+        LimitSwitchesManager::ACTIVE_INSTANCE.FireEvent(EVENT_LIMIT_SWITCH_TRIGGERED);
     }
     else if (LIMIT_SWITCHES_ARE_NC == 0 && val == 0)
     {
         // Limit switches are in NO Mode
-        // Call the FireOnLimitSwitchTrigger method
-        LimitSwitchesManager::ACTIVE_INSTANCE.FireOnLimitSwitchTrigger();
+        // Fire the EVENT_LIMIT_SWITCH_TRIGGERED
+        LimitSwitchesManager::ACTIVE_INSTANCE.FireEvent(EVENT_LIMIT_SWITCH_TRIGGERED);
     }
 }
+
+void LimitSwitchesManager::OnLimitSwitchTrigger_EventHandler()
+{
+    Serial.println("DEBUG:LimitSwitchesManager::OnLimitSwitchTrigger_EventHandler");
+}
+#endif

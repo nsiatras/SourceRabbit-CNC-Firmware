@@ -23,18 +23,42 @@ SOFTWARE.
 */
 #ifndef MANAGER_H
 #define MANAGER_H
+
 class Manager
 {
 private:
 public:
     virtual void Initialize();
 
-    // EVENT LISTENERS
-    void (*FireOnLimitSwitchTrigger)();
+    // Events...
+    void (*fEventHandlerVoid)(uint8_t);
+    void FireEvent(uint8_t eventID);
+
+    virtual void OnLimitSwitchTrigger_EventHandler();
+    virtual void OnTouchProbeTouch_EventHandler();
 };
 
 void Manager::Initialize()
 {
+}
+
+void Manager::OnLimitSwitchTrigger_EventHandler()
+{
+    // This method is virtual
+    // No code required here
+}
+
+void Manager::OnTouchProbeTouch_EventHandler()
+{
+    // This method is virtual
+    // No code required here
+}
+
+// Fire an eventID
+// This will go to void EventHandler inside SourceRabbit_CNC_Firmware.ino
+void Manager::FireEvent(uint8_t eventID)
+{
+    fEventHandlerVoid(eventID);
 }
 
 #endif

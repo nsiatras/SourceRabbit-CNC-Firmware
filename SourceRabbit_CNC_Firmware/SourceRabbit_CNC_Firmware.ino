@@ -24,6 +24,7 @@ SOFTWARE.
 #include "Arduino.h"
 #include "BoardPinout.h"
 #include "Config.h"
+#include "Events.h"
 #include "Manager.h"
 #include "SerialConnectionManager.h"
 #include "LimitSwitchesManager.h"
@@ -41,14 +42,15 @@ void setup()
     fSerialConnectionManager->fOnMessageReceivedFromSerialConnectionCall = OnMessageReceivedFromSerialConnection;
     fSerialConnectionManager->Initialize();
 
-    // Initialize Limit Switch Manager
-    fLimitSwitchesManager = new LimitSwitchesManager();
-    fLimitSwitchesManager->FireOnLimitSwitchTrigger = Handle_OnLimitSwitchTrigger;
-    fLimitSwitchesManager->Initialize();
-
     // Initialize Stepper Motor Manager
     fStepperMotorManager = new StepperMotorManager();
+    fStepperMotorManager->fEventHandlerVoid = EventHandler;
     fStepperMotorManager->Initialize();
+
+    // Initialize Limit Switch Manager
+    fLimitSwitchesManager = new LimitSwitchesManager();
+    fLimitSwitchesManager->fEventHandlerVoid = EventHandler;
+    fLimitSwitchesManager->Initialize();
 }
 
 void loop()
@@ -64,7 +66,24 @@ void OnMessageReceivedFromSerialConnection(String message)
 }
 
 // This method is called only when a limit switch is triggered
-void Handle_OnLimitSwitchTrigger()
+void EventHandler(uint8_t eventID)
 {
-    // A LIMIT SWITCH HAS BEEN TRIGGERED!
+    switch (eventID)
+    {
+    case EVENT_LIMIT_SWITCH_TRIGGERED:
+        // A LIMIT SWITCH HAS BEEN TRIGGERED!
+        // This event comes from the LimitSwitchesManager
+        // INFORM ALL MANAGERS ABOUT IT
+        fStepperMotorManager->OnLimitSwitchTrigger_EventHandler();
+        fLimitSwitchesManager->OnLimitSwitchTrigger_EventHandler();
+        break;
+
+    case EVENT_TOUCH_PROBE_TOUCH:
+        // Touch probe has been touched
+        // This event comes from the Touch Probe Manager
+        // INFORM ALL MANAGERS ABOUT IT
+        fStepperMotorManager->OnTouchProbeTouch_EventHandler();
+        fLimitSwitchesManager->OnTouchProbeTouch_EventHandler();
+        break;
+    }
 }

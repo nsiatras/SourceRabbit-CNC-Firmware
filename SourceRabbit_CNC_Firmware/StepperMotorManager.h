@@ -21,15 +21,23 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+#ifndef STEPPERMOTORMANAGER_H
+#define STEPPERMOTORMANAGER_H
 #include "StepperMotor.h"
 
 class StepperMotorManager : public Manager
 {
 private:
 public:
+  static StepperMotorManager ACTIVE_INSTANCE; // Create a static Active Instance for the Limit Switches Manager
   StepperMotor fStepperMotorX, fStepperMotorY, fStepperMotorZ, fStepperMotorA;
   void Initialize();
+
+  // Stepper Motor Manager Events
+  void OnLimitSwitchTrigger_EventHandler(); // This is to override the virtual OnLImitSwitchTrigger_Handler of the Manager parent
 };
+
+StepperMotorManager StepperMotorManager::ACTIVE_INSTANCE; // Declare the static ACTIVE_INSTANCE
 
 // Initialize the Stepper Motor Manager
 void StepperMotorManager::Initialize()
@@ -42,4 +50,14 @@ void StepperMotorManager::Initialize()
   fStepperMotorY.Initialize(STEPPER_Y_STEP_PIN, STEPPER_Y_DIR_PIN, STEPPER_Y_ENABLE_PIN, STEPPER_Y_STEPS_PER_MM, STEPPER_Y_ACCELERATION, STEPPER_Y_MAX_VELOCITY);
   fStepperMotorY.Initialize(STEPPER_Z_STEP_PIN, STEPPER_Z_DIR_PIN, STEPPER_Z_ENABLE_PIN, STEPPER_Z_STEPS_PER_MM, STEPPER_Z_ACCELERATION, STEPPER_Z_MAX_VELOCITY);
   fStepperMotorY.Initialize(STEPPER_A_STEP_PIN, STEPPER_A_DIR_PIN, STEPPER_A_ENABLE_PIN, STEPPER_A_STEPS_PER_MM, STEPPER_A_ACCELERATION, STEPPER_A_MAX_VELOCITY);
+
+  // Initialize the static ACTIVE_INSTANCE of the LimitSwitchesManager
+  StepperMotorManager::ACTIVE_INSTANCE = *this;
 }
+
+void StepperMotorManager::OnLimitSwitchTrigger_EventHandler()
+{
+  Serial.println("DEBUG:StepperMotorManager::OnLimitSwitchTrigger_EventHandler");
+}
+
+#endif

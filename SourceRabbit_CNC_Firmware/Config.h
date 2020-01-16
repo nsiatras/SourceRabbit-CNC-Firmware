@@ -50,3 +50,6 @@ SOFTWARE.
 
 #define ENABLE_LIMIT_SWITCHES 1 // If you have limit switches installed then set it to 1 otherwise set it to zero
 #define LIMIT_SWITCHES_ARE_NC 0 // If limit switches are Normally Closed (NC) then set this to 1, otherwise set it to 0
+
+
+
