@@ -28,6 +28,7 @@ SOFTWARE.
 class StepperMotorManager : public Manager
 {
 private:
+
 public:
   static StepperMotorManager ACTIVE_INSTANCE; // Create a static Active Instance for the Limit Switches Manager
   StepperMotor fStepperMotorX, fStepperMotorY, fStepperMotorZ, fStepperMotorA;
@@ -50,14 +51,13 @@ void StepperMotorManager::Initialize()
   fStepperMotorY.Initialize(STEPPER_Y_STEP_PIN, STEPPER_Y_DIR_PIN, STEPPER_Y_ENABLE_PIN, STEPPER_Y_STEPS_PER_MM, STEPPER_Y_ACCELERATION, STEPPER_Y_MAX_VELOCITY);
   fStepperMotorY.Initialize(STEPPER_Z_STEP_PIN, STEPPER_Z_DIR_PIN, STEPPER_Z_ENABLE_PIN, STEPPER_Z_STEPS_PER_MM, STEPPER_Z_ACCELERATION, STEPPER_Z_MAX_VELOCITY);
   fStepperMotorY.Initialize(STEPPER_A_STEP_PIN, STEPPER_A_DIR_PIN, STEPPER_A_ENABLE_PIN, STEPPER_A_STEPS_PER_MM, STEPPER_A_ACCELERATION, STEPPER_A_MAX_VELOCITY);
-
-  // Initialize the static ACTIVE_INSTANCE of the LimitSwitchesManager
-  StepperMotorManager::ACTIVE_INSTANCE = *this;
 }
 
 void StepperMotorManager::OnLimitSwitchTrigger_EventHandler()
 {
+#ifdef SHOW_DEBUG_MESSAGES
   Serial.println("DEBUG:StepperMotorManager::OnLimitSwitchTrigger_EventHandler");
+#endif
 }
 
 #endif

@@ -24,16 +24,17 @@ SOFTWARE.
 #include "Arduino.h"
 #include "BoardPinout.h"
 #include "Config.h"
+#include "EMachineStatus.h"
+#include "Machine.h"
 #include "Events.h"
 #include "Manager.h"
 #include "SerialConnectionManager.h"
 #include "LimitSwitchesManager.h"
 #include "StepperMotorManager.h"
 #include "MotionController.h"
+#include "StatusReportManager.h"
 
 SerialConnectionManager *fSerialConnectionManager;
-LimitSwitchesManager *fLimitSwitchesManager;
-StepperMotorManager *fStepperMotorManager;
 
 void setup()
 {
@@ -43,14 +44,22 @@ void setup()
     fSerialConnectionManager->Initialize();
 
     // Initialize Stepper Motor Manager
-    fStepperMotorManager = new StepperMotorManager();
-    fStepperMotorManager->fEventHandlerVoid = EventHandler;
-    fStepperMotorManager->Initialize();
+    StepperMotorManager::ACTIVE_INSTANCE.fEventHandlerVoid = EventHandler;
+    StepperMotorManager::ACTIVE_INSTANCE.Initialize();
 
     // Initialize Limit Switch Manager
-    fLimitSwitchesManager = new LimitSwitchesManager();
-    fLimitSwitchesManager->fEventHandlerVoid = EventHandler;
-    fLimitSwitchesManager->Initialize();
+    LimitSwitchesManager::ACTIVE_INSTANCE.fEventHandlerVoid = EventHandler;
+    LimitSwitchesManager::ACTIVE_INSTANCE.Initialize();
+
+    StatusReportManager::ACTIVE_INSTANCE.fEventHandlerVoid = EventHandler;
+    StatusReportManager::ACTIVE_INSTANCE.Initialize();
+
+    // Initialize the Machine
+    Machine::ACTIVE_INSTANCE.Initialize();
+
+    // EVERYTHING IS INITIALIZED
+    // Send the welcome message to the PC Client
+    Serial.println(WELCOME_MESSAGE);
 }
 
 void loop()
@@ -62,7 +71,16 @@ void loop()
 // through here
 void OnMessageReceivedFromSerialConnection(String message)
 {
-    Serial.println(message);
+    if (message == "?")
+    {
+        // Ask the StatusReportManager to send a status report to the PC Client
+        StatusReportManager::ACTIVE_INSTANCE.SendStatusReportToPCClient();
+    }
+    else if (message == "$H")
+    {
+        // Home the machine
+        Machine::ACTIVE_INSTANCE.StartHomingSequence();
+    }
 }
 
 // This method is called only when a limit switch is triggered
@@ -74,16 +92,16 @@ void EventHandler(uint8_t eventID)
         // A LIMIT SWITCH HAS BEEN TRIGGERED!
         // This event comes from the LimitSwitchesManager
         // INFORM ALL MANAGERS ABOUT IT
-        fStepperMotorManager->OnLimitSwitchTrigger_EventHandler();
-        fLimitSwitchesManager->OnLimitSwitchTrigger_EventHandler();
+        StepperMotorManager::ACTIVE_INSTANCE.OnLimitSwitchTrigger_EventHandler();
+        LimitSwitchesManager::ACTIVE_INSTANCE.OnLimitSwitchTrigger_EventHandler();
         break;
 
     case EVENT_TOUCH_PROBE_TOUCH:
         // Touch probe has been touched
         // This event comes from the Touch Probe Manager
         // INFORM ALL MANAGERS ABOUT IT
-        fStepperMotorManager->OnTouchProbeTouch_EventHandler();
-        fLimitSwitchesManager->OnTouchProbeTouch_EventHandler();
+        StepperMotorManager::ACTIVE_INSTANCE.OnTouchProbeTouch_EventHandler();
+        LimitSwitchesManager::ACTIVE_INSTANCE.OnTouchProbeTouch_EventHandler();
         break;
     }
 }
