@@ -39,7 +39,10 @@ void SerialConnectionManager::Initialize()
     Manager::Initialize();
 
     Serial.begin(SERIAL_CONNECTION_BAUD_RATE);
-    Serial.println("GRBL 1.1");
+
+    // Send the Welcome Message
+    Serial.print("SourceRabbit CNC Firmware ");
+    Serial.println(SOFTWARE_VERSION);
 
     fMessage = "";
     for (uint8_t i = 0; i < SERIAL_CONNECTION_INCOMING_BUFFER_SIZE; i++)
