@@ -28,10 +28,15 @@ private:
     char fIncomingBuffer[SERIAL_CONNECTION_INCOMING_BUFFER_SIZE]; // The buffer to collect incoming data
     uint8_t fBufferIndex;                                         // The incoming data buffer index
 public:
+    static SerialConnectionManager ACTIVE_INSTANCE; // Create a static Active Instance for the SerialConnectionManager
     void Initialize();
     void ReadAvailableDataInSerial();
+    void ReportOKForIncomingCommand();
+    void ReportErrorForIncomingCommand(uint8_t errorID);
     void (*fOnMessageReceivedFromSerialConnectionCall)(String);
 };
+
+SerialConnectionManager SerialConnectionManager::ACTIVE_INSTANCE; // Declare the static ACTIVE_INSTANCE
 
 void SerialConnectionManager::Initialize()
 {
@@ -46,6 +51,17 @@ void SerialConnectionManager::Initialize()
         fIncomingBuffer[i] = 0;
     }
     fBufferIndex = 0;
+}
+
+void SerialConnectionManager::ReportOKForIncomingCommand()
+{
+    Serial.println("ok");
+}
+
+void SerialConnectionManager::ReportErrorForIncomingCommand(uint8_t errorID)
+{
+    Serial.print("error:");
+    Serial.println(errorID);
 }
 
 void SerialConnectionManager::ReadAvailableDataInSerial()

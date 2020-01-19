@@ -29,7 +29,7 @@ class SpindleEncoderManager : public Manager
 public:
     void Initialize();
     static SpindleEncoderManager ACTIVE_INSTANCE; // Create a static Active Instance for the Spindle Encoder Manager
-    static void EncoderStatusChanged();           // THIS HAS TO BE STATIC because it is using an attachInterrupt
+    static void EncoderTicked();                  // THIS HAS TO BE STATIC because it is used from an attachInterrupt
 
     // Spindle Encoder Manager Events
     void OnLimitSwitchOn_EventHandler() override;
@@ -46,19 +46,16 @@ void SpindleEncoderManager::Initialize()
 
 #ifdef ENABLE_SPINDLE_ENCODER
     pinMode(SPINDLE_ENCODER_PIN, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(SPINDLE_ENCODER_PIN), EncoderStatusChanged, FALLING);
+    attachInterrupt(digitalPinToInterrupt(SPINDLE_ENCODER_PIN), EncoderTicked, FALLING);
 #endif
-
-    // After initialize check the limit switches one time to get
-    // their initial status
-    SpindleEncoderManager::EncoderStatusChanged();
 }
 
-// This method is called from the interrupt when the status of the limit switches pin is LimitSwitchStatusChanged
-void SpindleEncoderManager::EncoderStatusChanged()
+// This method is called from the interrupt when
+// the status encoder pin changes to HIGH
+void SpindleEncoderManager::EncoderTicked()
 {
 #ifdef SHOW_DEBUG_MESSAGES
-    Serial.println("DEBUG:SpindleEncoderManager::EncoderStatusChanged");
+    Serial.println("DEBUG:SpindleEncoderManager::EncoderTicked");
 #endif
 }
 

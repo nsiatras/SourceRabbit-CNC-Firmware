@@ -31,7 +31,7 @@ private:
   boolean fLimitSwitchIsOn = false;
 
 public:
-  static StepperMotorManager ACTIVE_INSTANCE; // Create a static Active Instance for the Limit Switches Manager
+  static StepperMotorManager ACTIVE_INSTANCE; // Create a static Active Instance for the StepperMotorManager
   StepperMotor fStepperMotorX, fStepperMotorY, fStepperMotorZ, fStepperMotorA;
   void Initialize();
 

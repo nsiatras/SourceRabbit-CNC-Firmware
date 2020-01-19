@@ -59,13 +59,14 @@ SOFTWARE.
 #define STEPPERS_ALWAYS_ENABLED 1 // Set to 1 if you want steppers to be always enabled
 
 // Limit switches
-// To enable the use of Limit Switches set the ENABLE_LIMIT_SWITCHES to 1
-// For Normally Closed limit switches (NC) set the ENABLE_LIMIT_SWITCHES to 1
-// For Normally Open (NO) limit switches set the ENABLE_LIMIT_SWITCHES to 0
-// Notice: After setting ENABLE_LIMIT_SWITCHES to 1 the machine
-// will require a homing cycle to get into idle status
-#define ENABLE_LIMIT_SWITCHES
-#define LIMIT_SWITCHES_ARE_NC 0
+// To enable the use of Limit Switches uncomment the '#define ENABLE_LIMIT_SWITCHES'
+// For Normally Open (NO) limit switches uncomment the '#define LIMIT_SWITCHES_ARE_NO line'
+// For Normally Closed (NC) limit switches uncomment the '#define LIMIT_SWITCHES_ARE_NC line'
+// Notice: After defining ENABLE_LIMIT_SWITCHES the machine
+// will require a homing cycle to get into idle status.
+#define ENABLE_LIMIT_SWITCHES // Uncomment to enable the use of limit switches
+//#define LIMIT_SWITCHES_ARE_NC // Uncomment if the limit switches are NC (Normally Closed)
+#define LIMIT_SWITCHES_ARE_NO // Uncomment if the limit switches are NO (Normally Open)
 
 // Homing directions
 //#define HOME_X_TO_MAX ;   // Uncomment to home X Axis to Max
@@ -75,7 +76,6 @@ SOFTWARE.
 #define HOME_Z_TO_MAX ; // Uncomment to home Z Axis to Max
 //#define HOME_Z_TO_MIN;    // Uncomment to home X Axis to 0
 
-// Spindle Encoder
-// To enable the use of Spindle Encoder uncomment the following lines
+// Spindle Encoder (SUPPORT FOR SINGLE TICK ENCODERS)
+// To enable the use of Spindle Encoder uncomment the following line
 #define ENABLE_SPINDLE_ENCODER
-#define SPINDLE_ENCODER_TICKS_PER_REVOLUTION 1 // The ticks per revolution of the encoder

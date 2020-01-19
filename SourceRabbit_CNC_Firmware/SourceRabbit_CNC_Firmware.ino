@@ -21,7 +21,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+#include <Arduino.h>
 #include "BoardPinout.h"
+#include "Core.h"
 #include "Config.h"
 #include "EError.h"
 #include "EMachineStatus.h"
@@ -36,16 +38,15 @@ SOFTWARE.
 // MACHINE ALWAYS AT THE END
 #include "Machine.h"
 
-SerialConnectionManager *fSerialConnectionManager;
-
 void setup()
 {
     unsigned long microStart = micros();
 
+    InitializeCore();
+
     // Initialize Serial Communication Manager
-    fSerialConnectionManager = new SerialConnectionManager();
-    fSerialConnectionManager->fOnMessageReceivedFromSerialConnectionCall = OnMessageReceivedFromSerialConnection;
-    fSerialConnectionManager->Initialize();
+    SerialConnectionManager::ACTIVE_INSTANCE.fOnMessageReceivedFromSerialConnectionCall = OnMessageReceivedFromSerialConnection;
+    SerialConnectionManager::ACTIVE_INSTANCE.Initialize();
 
     // Initialize Stepper Motor Manager
     StepperMotorManager::ACTIVE_INSTANCE.fEventHandlerVoid = EventHandler;
@@ -66,14 +67,14 @@ void setup()
     // Send the welcome message to the PC Client
     unsigned long microsEnd = micros();
     Serial.print(WELCOME_MESSAGE);
-    Serial.print("(Loaded in ");
+    Serial.print("(Booted in ");
     Serial.print(String(microsEnd - microStart));
     Serial.println(" usec)");
 }
 
 void loop()
 {
-    fSerialConnectionManager->ReadAvailableDataInSerial();
+    SerialConnectionManager::ACTIVE_INSTANCE.ReadAvailableDataInSerial();
 }
 
 // All incoming messages from the serial connection passes
@@ -84,16 +85,20 @@ void OnMessageReceivedFromSerialConnection(String message)
     {
         // Ask Machine to send a status report to the PC Client
         Machine::ACTIVE_INSTANCE.SendStatusReportToPCClient();
+        SerialConnectionManager::ACTIVE_INSTANCE.ReportOKForIncomingCommand();
     }
     else if (message == "$H")
     {
         // Home the machine
         Machine::ACTIVE_INSTANCE.StartHomingSequence();
+        SerialConnectionManager::ACTIVE_INSTANCE.ReportOKForIncomingCommand();
+        // Send a status report to the PC Client
+        Machine::ACTIVE_INSTANCE.SendStatusReportToPCClient();
     }
     else
     {
         // Send Unknown Command error to PC Client
-        Serial.println("error:" + String(ERROR_UNKOWN_COMMAND));
+        SerialConnectionManager::ACTIVE_INSTANCE.ReportErrorForIncomingCommand(ERROR_UNKOWN_COMMAND);
     }
 }
 
@@ -107,7 +112,6 @@ void EventHandler(uint8_t eventID)
         // This event comes from the LimitSwitchesManager
         // INFORM ALL MANAGERS ABOUT IT
         StepperMotorManager::ACTIVE_INSTANCE.OnLimitSwitchOn_EventHandler();
-        LimitSwitchesManager::ACTIVE_INSTANCE.OnLimitSwitchOn_EventHandler();
         SpindleEncoderManager::ACTIVE_INSTANCE.OnLimitSwitchOn_EventHandler();
         break;
 
@@ -116,7 +120,6 @@ void EventHandler(uint8_t eventID)
         // This event comes from the LimitSwitchesManager
         // INFORM ALL MANAGERS ABOUT IT
         StepperMotorManager::ACTIVE_INSTANCE.OnLimitSwitchOff_EventHandler();
-        LimitSwitchesManager::ACTIVE_INSTANCE.OnLimitSwitchOff_EventHandler();
         SpindleEncoderManager::ACTIVE_INSTANCE.OnLimitSwitchOff_EventHandler();
         break;
 
@@ -125,7 +128,6 @@ void EventHandler(uint8_t eventID)
         // This event comes from the Touch Probe Manager
         // INFORM ALL MANAGERS ABOUT IT
         StepperMotorManager::ACTIVE_INSTANCE.OnTouchProbeTouch_EventHandler();
-        LimitSwitchesManager::ACTIVE_INSTANCE.OnTouchProbeTouch_EventHandler();
         break;
     }
 }

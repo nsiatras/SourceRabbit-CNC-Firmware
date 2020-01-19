@@ -43,14 +43,14 @@ SOFTWARE.
 #define STEPPER_A_DIR_PIN 28    // Stepper A DIR Pin is the Extruder0 DIR pin on Ramps 1.4 board
 #define STEPPER_A_ENABLE_PIN 24 // Stepper A ENABLE Pin is the Extruder0 ENABLE on in Ramps 1.4 board
 
-// Limit switches are connected in series in Pin 3 . 
-// Limit switches are NC (Normaly Closed) . 
-// Pin 2 is X+ (X MAX) Limit pin on Ramps 1.4 board
-#define LIMIT_SWITCHES_PIN 2
-
-// Spindle Encoder is connected to Pin 3 
+// Limit switches are connected in series in Pin 3 .
+// Limit switches are NC (Normaly Closed) .
 // Pin 3 is X- (X MIN) Limit pin on Ramps 1.4 board
-#define SPINDLE_ENCODER_PIN 3 
+#define LIMIT_SWITCHES_PIN 3
+
+// Spindle Encoder is connected to Pin 2
+// Pin 2 is X+ (X MAX) Limit pin on Ramps 1.4 board
+#define SPINDLE_ENCODER_PIN 2
 
 #define FAN_PIN 9
 

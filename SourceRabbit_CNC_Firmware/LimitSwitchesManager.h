@@ -31,7 +31,7 @@ public:
     static LimitSwitchesManager ACTIVE_INSTANCE; // Create a static Active Instance for the Limit Switches Manager
     static void LimitSwitchStatusChanged();      // THIS HAS TO BE STATIC because it is using an attachInterrupt
 
-    bool fIsEnstopsTriggered = false;
+    bool fEndstopIsTriggered = true;
 };
 
 LimitSwitchesManager LimitSwitchesManager::ACTIVE_INSTANCE; // Declare the static ACTIVE_INSTANCE
@@ -59,30 +59,17 @@ void LimitSwitchesManager::Initialize()
 // This method is called from the interrupt when the status of the limit switches pin is LimitSwitchStatusChanged
 void LimitSwitchesManager::LimitSwitchStatusChanged()
 {
-#ifdef ENABLE_LIMIT_SWITCHES
-    // Get the value of the pin and check if the LimitSwitchesManager_LimitSwitchTriggered
-    // must be called.
-    int val = digitalRead(LIMIT_SWITCHES_PIN);
+    // Check if the Limit Switches pin is High
+    bool isLimitSwitchesPinHigh = isPinHigh(LIMIT_SWITCHES_PIN);
 
-    if (LIMIT_SWITCHES_ARE_NC == 1 && val == 1)
-    {
-        LimitSwitchesManager::ACTIVE_INSTANCE.fIsEnstopsTriggered = true;
-        // Limit switches are in NC Mode
-        // Fire the EVENT_LIMIT_SWITCH_TRIGGERED
-        LimitSwitchesManager::ACTIVE_INSTANCE.FireEvent(EVENT_LIMIT_SWITCH_ON);
-    }
-    else if (LIMIT_SWITCHES_ARE_NC == 0 && val == 0)
-    {
-        LimitSwitchesManager::ACTIVE_INSTANCE.fIsEnstopsTriggered = true;
-        // Limit switches are in NO Mode
-        // Fire the EVENT_LIMIT_SWITCH_TRIGGERED
-        LimitSwitchesManager::ACTIVE_INSTANCE.FireEvent(EVENT_LIMIT_SWITCH_ON);
-    }
-    else
-    {
-        LimitSwitchesManager::ACTIVE_INSTANCE.fIsEnstopsTriggered = false;
-        LimitSwitchesManager::ACTIVE_INSTANCE.FireEvent(EVENT_LIMIT_SWITCH_OFF);
-    }
+#ifdef LIMIT_SWITCHES_ARE_NO
+    // LIMIT SWITCHES ARE NO (NORMALLY OPENED)
+    LimitSwitchesManager::ACTIVE_INSTANCE.fEndstopIsTriggered = isLimitSwitchesPinHigh;
+    LimitSwitchesManager::ACTIVE_INSTANCE.FireEvent(isLimitSwitchesPinHigh ? EVENT_LIMIT_SWITCH_ON : EVENT_LIMIT_SWITCH_OFF);
+#else
+    // LIMIT SWITCHES ARE NC (NORMALLY CLOSED)
+    LimitSwitchesManager::ACTIVE_INSTANCE.fEndstopIsTriggered = !isLimitSwitchesPinHigh;
+    LimitSwitchesManager::ACTIVE_INSTANCE.FireEvent(!isLimitSwitchesPinHigh ? EVENT_LIMIT_SWITCH_ON : EVENT_LIMIT_SWITCH_OFF);
 #endif
 }
 

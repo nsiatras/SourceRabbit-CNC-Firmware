@@ -88,14 +88,17 @@ void Machine::StartHomingSequence()
     // Set machine status to idle and
     // ask the Status Report Manager to send a new status report to the pc client
     fCurrentMachineStatus = MACHINESTATUS_IDLE;
-
-    Serial.println("ok");
 }
 
 void Machine::HomeXAxis()
 {
     // Ask the Stepper Motor Manager to Home the X Axis
     StepperMotorManager::ACTIVE_INSTANCE.HomeXAxis();
+
+    while (LimitSwitchesManager::ACTIVE_INSTANCE.fEndstopIsTriggered)
+    {
+        delay(1);
+    }
 
 #ifdef HOME_X_TO_MAX
     fMachineXPosition = MAX_X_TRAVEL * -1;
@@ -109,6 +112,11 @@ void Machine::HomeYAxis()
     // Ask the Stepper Motor Manager to Home the Y Axis
     StepperMotorManager::ACTIVE_INSTANCE.HomeYAxis();
 
+    while (LimitSwitchesManager::ACTIVE_INSTANCE.fEndstopIsTriggered)
+    {
+        delay(1);
+    }
+
 #ifdef HOME_Y_TO_MAX
     fMachineYPosition = MAX_Y_TRAVEL * -1;
 #else
@@ -120,6 +128,11 @@ void Machine::HomeZAxis()
 {
     // Ask the Stepper Motor Manager to Home the X Axis
     StepperMotorManager::ACTIVE_INSTANCE.HomeZAxis();
+
+    while (LimitSwitchesManager::ACTIVE_INSTANCE.fEndstopIsTriggered)
+    {
+        delay(1);
+    }
 
 #ifdef HOME_Z_TO_MAX
     fMachineZPosition = MAX_Z_TRAVEL * -1;
@@ -176,7 +189,7 @@ void Machine::SendStatusReportToPCClient()
     result += getMachinePositionStatusString();
 
     // Step 3. Limit Switches status
-    if (LimitSwitchesManager::ACTIVE_INSTANCE.fIsEnstopsTriggered)
+    if (LimitSwitchesManager::ACTIVE_INSTANCE.fEndstopIsTriggered)
     {
         result += "|L";
     }
@@ -184,7 +197,6 @@ void Machine::SendStatusReportToPCClient()
     // Send status report string through serial
     result += ">";
     Serial.println(result);
-    Serial.println("ok");
 }
 
 #endif
