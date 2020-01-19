@@ -31,6 +31,7 @@ public:
     static SerialConnectionManager ACTIVE_INSTANCE; // Create a static Active Instance for the SerialConnectionManager
     void Initialize();
     void ReadAvailableDataInSerial();
+    void SendData(String dataToSend);
     void ReportOKForIncomingCommand();
     void ReportErrorForIncomingCommand(uint8_t errorID);
     void (*fOnMessageReceivedFromSerialConnectionCall)(String);
@@ -56,6 +57,11 @@ void SerialConnectionManager::Initialize()
 void SerialConnectionManager::ReportOKForIncomingCommand()
 {
     Serial.println("ok");
+}
+
+void SerialConnectionManager::SendData(String dataToSend)
+{
+    Serial.println(dataToSend);
 }
 
 void SerialConnectionManager::ReportErrorForIncomingCommand(uint8_t errorID)

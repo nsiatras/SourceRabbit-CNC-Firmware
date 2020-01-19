@@ -38,7 +38,7 @@ public:
     void Initialize();
     static Machine ACTIVE_INSTANCE; // Create a static Active Instance for the Machine
 
-    void SendStatusReportToPCClient();
+    String getMachineStatusReportString();
 
     void StartHomingSequence();
     void HomeXAxis();
@@ -174,15 +174,17 @@ String Machine::getMachinePositionStatusString()
     return result;
 }
 
-void Machine::SendStatusReportToPCClient()
+String Machine::getMachineStatusReportString()
 {
     // Generate the status report string
     // And send it to the PC Client
     // Notice: The status report string is like the following
-    // Example: <idle|0.000,0.000,0.000,0.000|0.000,0.000,0.000,,0.000|L|P>
+    // Example: <idle|0.000,0.000,0.000,0.000|0.000,0.000,0.000,0.000|L|P>
+    // L is the limit Switches
+    // P is the Touch Probe
     String result = "<";
 
-    // Step 1. Get status
+    // Step 1. Get machine stats status (idle,jog,alarm etc..)
     result += getCurrentStatusInStringFormat() + "|";
 
     // Step 2. Get machine coordinates
@@ -194,9 +196,12 @@ void Machine::SendStatusReportToPCClient()
         result += "|L";
     }
 
+    // Step 4. Touch Probe status
+    // TODO
+
     // Send status report string through serial
     result += ">";
-    Serial.println(result);
+    return result;
 }
 
 #endif

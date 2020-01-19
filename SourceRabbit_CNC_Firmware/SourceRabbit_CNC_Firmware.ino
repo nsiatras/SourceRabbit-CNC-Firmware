@@ -83,9 +83,9 @@ void OnMessageReceivedFromSerialConnection(String message)
 {
     if (message == "?")
     {
-        // Ask Machine to send a status report to the PC Client
-        Machine::ACTIVE_INSTANCE.SendStatusReportToPCClient();
-        SerialConnectionManager::ACTIVE_INSTANCE.ReportOKForIncomingCommand();
+        // Get the status report string from Machine
+        // and send it to the PC client
+        SerialConnectionManager::ACTIVE_INSTANCE.SendData(Machine::ACTIVE_INSTANCE.getMachineStatusReportString());
     }
     else if (message == "$H")
     {
@@ -93,7 +93,7 @@ void OnMessageReceivedFromSerialConnection(String message)
         Machine::ACTIVE_INSTANCE.StartHomingSequence();
         SerialConnectionManager::ACTIVE_INSTANCE.ReportOKForIncomingCommand();
         // Send a status report to the PC Client
-        Machine::ACTIVE_INSTANCE.SendStatusReportToPCClient();
+        SerialConnectionManager::ACTIVE_INSTANCE.SendData(Machine::ACTIVE_INSTANCE.getMachineStatusReportString());
     }
     else
     {
