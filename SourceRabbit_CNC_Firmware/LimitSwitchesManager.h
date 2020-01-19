@@ -42,24 +42,24 @@ void LimitSwitchesManager::Initialize()
     // Call the parent Initialize
     Manager::Initialize();
 
-    if (ENABLE_LIMIT_SWITCHES == 1)
-    {
-        ////////////////////////////////////////////////////////////////////////////////////////////
-        // Add an interrupt to the LIMIT_SWITCHES_PIN.
-        // Every time a limit switch is triggered the interrupt will fire the STATIC void LimitSwitchStatusChanged
-        pinMode(LIMIT_SWITCHES_PIN, INPUT_PULLUP);
-        attachInterrupt(digitalPinToInterrupt(LIMIT_SWITCHES_PIN), LimitSwitchStatusChanged, CHANGE);
-    }
+#ifdef ENABLE_LIMIT_SWITCHES
     ////////////////////////////////////////////////////////////////////////////////////////////
+    // Add an interrupt to the LIMIT_SWITCHES_PIN.
+    // Every time a limit switch is triggered the interrupt will fire the STATIC void LimitSwitchStatusChanged
+    pinMode(LIMIT_SWITCHES_PIN, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(LIMIT_SWITCHES_PIN), LimitSwitchStatusChanged, CHANGE);
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
     // After initialize check the limit switches one time to get
     // their initial status
     LimitSwitchesManager::LimitSwitchStatusChanged();
+#endif
 }
 
 // This method is called from the interrupt when the status of the limit switches pin is LimitSwitchStatusChanged
 void LimitSwitchesManager::LimitSwitchStatusChanged()
 {
+#ifdef ENABLE_LIMIT_SWITCHES
     // Get the value of the pin and check if the LimitSwitchesManager_LimitSwitchTriggered
     // must be called.
     int val = digitalRead(LIMIT_SWITCHES_PIN);
@@ -83,6 +83,7 @@ void LimitSwitchesManager::LimitSwitchStatusChanged()
         LimitSwitchesManager::ACTIVE_INSTANCE.fIsEnstopsTriggered = false;
         LimitSwitchesManager::ACTIVE_INSTANCE.FireEvent(EVENT_LIMIT_SWITCH_OFF);
     }
+#endif
 }
 
 #endif

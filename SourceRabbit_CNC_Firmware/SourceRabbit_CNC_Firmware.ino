@@ -21,7 +21,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#include "Arduino.h"
 #include "BoardPinout.h"
 #include "Config.h"
 #include "EError.h"
@@ -32,6 +31,7 @@ SOFTWARE.
 #include "LimitSwitchesManager.h"
 #include "StepperMotorManager.h"
 #include "MotionController.h"
+#include "SpindleEncoderManager.h"
 
 // MACHINE ALWAYS AT THE END
 #include "Machine.h"
@@ -55,19 +55,20 @@ void setup()
     LimitSwitchesManager::ACTIVE_INSTANCE.fEventHandlerVoid = EventHandler;
     LimitSwitchesManager::ACTIVE_INSTANCE.Initialize();
 
+    // Initialize Limit Switch Manager
+    SpindleEncoderManager::ACTIVE_INSTANCE.fEventHandlerVoid = EventHandler;
+    SpindleEncoderManager::ACTIVE_INSTANCE.Initialize();
+
     // Initialize the Machine
     Machine::ACTIVE_INSTANCE.Initialize();
 
     // EVERYTHING IS INITIALIZED
     // Send the welcome message to the PC Client
     unsigned long microsEnd = micros();
-    Serial.println(WELCOME_MESSAGE);
-
-#ifdef SHOW_DEBUG_MESSAGES
-    Serial.print("DEBUG:Initialized in ");
+    Serial.print(WELCOME_MESSAGE);
+    Serial.print("(Loaded in ");
     Serial.print(String(microsEnd - microStart));
-    Serial.println(" microseconds");
-#endif
+    Serial.println(" usec)");
 }
 
 void loop()
@@ -107,6 +108,7 @@ void EventHandler(uint8_t eventID)
         // INFORM ALL MANAGERS ABOUT IT
         StepperMotorManager::ACTIVE_INSTANCE.OnLimitSwitchOn_EventHandler();
         LimitSwitchesManager::ACTIVE_INSTANCE.OnLimitSwitchOn_EventHandler();
+        SpindleEncoderManager::ACTIVE_INSTANCE.OnLimitSwitchOn_EventHandler();
         break;
 
     case EVENT_LIMIT_SWITCH_OFF:
@@ -115,6 +117,7 @@ void EventHandler(uint8_t eventID)
         // INFORM ALL MANAGERS ABOUT IT
         StepperMotorManager::ACTIVE_INSTANCE.OnLimitSwitchOff_EventHandler();
         LimitSwitchesManager::ACTIVE_INSTANCE.OnLimitSwitchOff_EventHandler();
+        SpindleEncoderManager::ACTIVE_INSTANCE.OnLimitSwitchOff_EventHandler();
         break;
 
     case EVENT_TOUCH_PROBE_TOUCH:

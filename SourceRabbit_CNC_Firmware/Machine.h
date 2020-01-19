@@ -54,18 +54,15 @@ Machine Machine::ACTIVE_INSTANCE; // Declare the static ACTIVE_INSTANCE
 // Initialize Limit Switches Manager
 void Machine::Initialize()
 {
-    if (ENABLE_LIMIT_SWITCHES == 1)
-    {
-        // The machine has just been initialized and has Limit Switches Enabled
-        // Set the machine into alarm status until the user homes the machine
-        fCurrentMachineStatus = MACHINESTATUS_ALARM;
-    }
-    else
-    {
-        // The machine has just been initialized and has Limit Switches disabled
-        // Set the machine status to idle
-        fCurrentMachineStatus = MACHINESTATUS_IDLE;
-    }
+#ifdef ENABLE_LIMIT_SWITCHES
+    // The machine has just been initialized and has Limit Switches Enabled
+    // Set the machine into alarm status until the user homes the machine
+    fCurrentMachineStatus = MACHINESTATUS_ALARM;
+#else
+    // The machine has just been initialized and has Limit Switches disabled
+    // Set the machine status to idle
+    fCurrentMachineStatus = MACHINESTATUS_IDLE;
+#endif
 }
 
 void Machine::StartHomingSequence()

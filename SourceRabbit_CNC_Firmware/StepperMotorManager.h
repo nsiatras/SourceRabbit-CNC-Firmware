@@ -40,8 +40,8 @@ public:
   void HomeZAxis();
 
   // Stepper Motor Manager Events
-  void OnLimitSwitchOn_EventHandler(); // This is to override the virtual OnLImitSwitchTrigger_Handler of the Manager parent
-  void OnLimitSwitchOff_EventHandler();
+  void OnLimitSwitchOn_EventHandler() override;
+  void OnLimitSwitchOff_EventHandler() override;
 };
 
 StepperMotorManager StepperMotorManager::ACTIVE_INSTANCE; // Declare the static ACTIVE_INSTANCE

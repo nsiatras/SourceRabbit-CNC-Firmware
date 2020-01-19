@@ -64,7 +64,7 @@ SOFTWARE.
 // For Normally Open (NO) limit switches set the ENABLE_LIMIT_SWITCHES to 0
 // Notice: After setting ENABLE_LIMIT_SWITCHES to 1 the machine
 // will require a homing cycle to get into idle status
-#define ENABLE_LIMIT_SWITCHES 1
+#define ENABLE_LIMIT_SWITCHES
 #define LIMIT_SWITCHES_ARE_NC 0
 
 // Homing directions
@@ -74,3 +74,8 @@ SOFTWARE.
 #define HOME_Y_TO_MIN ; // Uncomment to home X Axis to 0
 #define HOME_Z_TO_MAX ; // Uncomment to home Z Axis to Max
 //#define HOME_Z_TO_MIN;    // Uncomment to home X Axis to 0
+
+// Spindle Encoder
+// To enable the use of Spindle Encoder uncomment the following lines
+#define ENABLE_SPINDLE_ENCODER
+#define SPINDLE_ENCODER_TICKS_PER_REVOLUTION 1 // The ticks per revolution of the encoder
