@@ -29,6 +29,7 @@ class Manager
 private:
 public:
     virtual void Initialize();
+    virtual void Reset();
 
     // Events...
     void (*fEventHandlerVoid)(uint8_t);
@@ -36,11 +37,20 @@ public:
 
     virtual void OnLimitSwitchOn_EventHandler();
     virtual void OnLimitSwitchOff_EventHandler();
-    virtual void OnTouchProbeTouch_EventHandler();
+    virtual void OnTouchProbeOn_EventHandler();
+    virtual void OnTouchProbeOff_EventHandler();
 };
 
 void Manager::Initialize()
 {
+    // This method is virtual
+    // No code required here
+}
+
+void Manager::Reset()
+{
+    // This method is virtual
+    // No code required here
 }
 
 void Manager::OnLimitSwitchOn_EventHandler()
@@ -55,7 +65,13 @@ void Manager::OnLimitSwitchOff_EventHandler()
     // No code required here
 }
 
-void Manager::OnTouchProbeTouch_EventHandler()
+void Manager::OnTouchProbeOn_EventHandler()
+{
+    // This method is virtual
+    // No code required here
+}
+
+void Manager::OnTouchProbeOff_EventHandler()
 {
     // This method is virtual
     // No code required here

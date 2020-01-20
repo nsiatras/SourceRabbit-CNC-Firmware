@@ -28,20 +28,23 @@ SOFTWARE.
 class StepperMotorManager : public Manager
 {
 private:
-  boolean fLimitSwitchIsOn = false;
+  bool fLimitSwitchIsOn = false;
+  bool fTouchProbeIsOn = false;
 
 public:
   static StepperMotorManager ACTIVE_INSTANCE; // Create a static Active Instance for the StepperMotorManager
   StepperMotor fStepperMotorX, fStepperMotorY, fStepperMotorZ, fStepperMotorA;
-  void Initialize();
 
-  void HomeXAxis();
-  void HomeYAxis();
-  void HomeZAxis();
+  void Initialize() override;
+  void Reset() override;
+
+  void MoveAxisToHomePosition(int axis);
 
   // Stepper Motor Manager Events
   void OnLimitSwitchOn_EventHandler() override;
   void OnLimitSwitchOff_EventHandler() override;
+  void OnTouchProbeOn_EventHandler() override;
+  void OnTouchProbeOff_EventHandler() override;
 };
 
 StepperMotorManager StepperMotorManager::ACTIVE_INSTANCE; // Declare the static ACTIVE_INSTANCE
@@ -59,57 +62,54 @@ void StepperMotorManager::Initialize()
   fStepperMotorY.Initialize(STEPPER_A_STEP_PIN, STEPPER_A_DIR_PIN, STEPPER_A_ENABLE_PIN, STEPPER_A_STEPS_PER_MM, STEPPER_A_ACCELERATION, STEPPER_A_MAX_VELOCITY);
 }
 
-void StepperMotorManager::HomeXAxis()
+// Reset the stepper motor manager
+void StepperMotorManager::Reset()
 {
-  // Move x motor until the Limit Switch is clicked
-  while (!fLimitSwitchIsOn)
-  {
-    delay(100);
-  }
-
-#ifdef SHOW_DEBUG_MESSAGES
-  Serial.println("DEBUG:StepperMotorManager::HomeXAxis Finished!");
-#endif
+  Manager::Reset();
+  StepperMotorManager::ACTIVE_INSTANCE.Initialize();
 }
 
-void StepperMotorManager::HomeYAxis()
+// The MoveAxisToHomePosition moves the axis to home direction
+// until the Limit Switch is triggered.
+void StepperMotorManager::MoveAxisToHomePosition(int axis)
 {
+  // TODO
+
+  // Wait to touch Limit Switch
   while (!fLimitSwitchIsOn)
   {
-    delay(100);
+    delay(1);
+  }
+
+  // Wait to stop touching Limit Switch
+  while (fLimitSwitchIsOn)
+  {
+    delay(1);
   }
 
 #ifdef SHOW_DEBUG_MESSAGES
-  Serial.println("DEBUG:StepperMotorManager::HomeYAxis Finished!");
-#endif
-}
-
-void StepperMotorManager::HomeZAxis()
-{
-  while (!fLimitSwitchIsOn)
-  {
-    delay(100);
-  }
-
-#ifdef SHOW_DEBUG_MESSAGES
-  Serial.println("DEBUG:StepperMotorManager::HomeZAxis Finished!");
+  Serial.println("DEBUG:StepperMotorManager::MoveAxisToHomePosition:" + String(axis) + " Axis Homed");
 #endif
 }
 
 void StepperMotorManager::OnLimitSwitchOn_EventHandler()
 {
   fLimitSwitchIsOn = true;
-#ifdef SHOW_DEBUG_MESSAGES
-  Serial.println("DEBUG:StepperMotorManager::OnLimitSwitchOn_EventHandler");
-#endif
 }
 
 void StepperMotorManager::OnLimitSwitchOff_EventHandler()
 {
   fLimitSwitchIsOn = false;
-#ifdef SHOW_DEBUG_MESSAGES
-  Serial.println("DEBUG:StepperMotorManager::OnLimitSwitchOff_EventHandler");
-#endif
+}
+
+void StepperMotorManager::OnTouchProbeOn_EventHandler()
+{
+  fTouchProbeIsOn = true;
+}
+
+void StepperMotorManager::OnTouchProbeOff_EventHandler()
+{
+  fTouchProbeIsOn = false;
 }
 
 #endif

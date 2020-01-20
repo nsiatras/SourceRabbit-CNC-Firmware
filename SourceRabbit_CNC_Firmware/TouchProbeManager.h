@@ -21,66 +21,63 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#ifndef LIMITSWITCHESMANAGER_H
-#define LIMITSWITCHESMANAGER_H
+#ifndef TOUCHPROBEMANAGER_H
+#define TOUCHPROBEMANAGER_H
 
 #include "Core.h"
 
-class LimitSwitchesManager : public Manager
+class TouchProbeManager : public Manager
 {
 
 public:
     void Initialize() override;
     void Reset() override;
-    static LimitSwitchesManager ACTIVE_INSTANCE; // Create a static Active Instance for the Limit Switches Manager
-    static void LimitSwitchStatusChanged();      // THIS HAS TO BE STATIC because it is using an attachInterrupt
+    static TouchProbeManager ACTIVE_INSTANCE; // Create a static Active Instance for the Limit Switches Manager
+    static void TouchProbeStatusChanged();    // THIS HAS TO BE STATIC because it is using an attachInterrupt
 
-    bool fEndstopIsTriggered = true;
+    bool fIsTouchProbeTriggered = true;
 };
 
-LimitSwitchesManager LimitSwitchesManager::ACTIVE_INSTANCE; // Declare the static ACTIVE_INSTANCE
+TouchProbeManager TouchProbeManager::ACTIVE_INSTANCE; // Declare the static ACTIVE_INSTANCE
 
 // Initialize Limit Switches Manager
-void LimitSwitchesManager::Initialize()
+void TouchProbeManager::Initialize()
 {
     // Call the parent Initialize
     Manager::Initialize();
 
-#ifdef ENABLE_LIMIT_SWITCHES
     ////////////////////////////////////////////////////////////////////////////////////////////
     // Add an interrupt to the LIMIT_SWITCHES_PIN.
     // Every time a limit switch is triggered the interrupt will fire the STATIC void LimitSwitchStatusChanged
-    pinMode(LIMIT_SWITCHES_PIN, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(LIMIT_SWITCHES_PIN), LimitSwitchStatusChanged, CHANGE);
+    pinMode(TOUCH_PROBE_PIN, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(TOUCH_PROBE_PIN), TouchProbeStatusChanged, CHANGE);
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // After initialize check the limit switches one time to get
     // their initial status
-    LimitSwitchesManager::LimitSwitchStatusChanged();
-#endif
+    TouchProbeManager::TouchProbeStatusChanged();
 }
 
-// Reset the Limit Switches Manager
-void LimitSwitchesManager::Reset()
+// Reset the Touch Probe Manager
+void TouchProbeManager::Reset()
 {
     Manager::Reset();
-    LimitSwitchesManager::ACTIVE_INSTANCE.Initialize();
+    TouchProbeManager::ACTIVE_INSTANCE.Initialize();
 }
 
-// This method is called from the interrupt when the status of the limit switches pin is LimitSwitchStatusChanged
-void LimitSwitchesManager::LimitSwitchStatusChanged()
+void TouchProbeManager::TouchProbeStatusChanged()
 {
     // Check if the Limit Switches pin is High
-    bool isLimitSwitchesPinHigh = isPinHigh(LIMIT_SWITCHES_PIN);
+    bool isTouchProbePinHIGH = isPinHigh(TOUCH_PROBE_PIN);
 
-#ifdef LIMIT_SWITCHES_ARE_NO
-    // LIMIT SWITCHES ARE NO (NORMALLY OPENED)
-    LimitSwitchesManager::ACTIVE_INSTANCE.fEndstopIsTriggered = isLimitSwitchesPinHigh;
-    LimitSwitchesManager::ACTIVE_INSTANCE.FireEvent(isLimitSwitchesPinHigh ? EVENT_LIMIT_SWITCH_ON : EVENT_LIMIT_SWITCH_OFF);
+#ifdef TOUCH_PROBE_IS_NO
+    // TOUCH PROBE IS NO (NORMALLY OPENED)
+    TouchProbeManager::ACTIVE_INSTANCE.fIsTouchProbeTriggered = isTouchProbePinHIGH;
+    TouchProbeManager::ACTIVE_INSTANCE.FireEvent(isTouchProbePinHIGH ? EVENT_TOUCH_PROBE_ON : EVENT_TOUCH_PROBE_OFF);
 #else
-    // LIMIT SWITCHES ARE NC (NORMALLY CLOSED)
-    LimitSwitchesManager::ACTIVE_INSTANCE.fEndstopIsTriggered = !isLimitSwitchesPinHigh;
-    LimitSwitchesManager::ACTIVE_INSTANCE.FireEvent(!isLimitSwitchesPinHigh ? EVENT_LIMIT_SWITCH_ON : EVENT_LIMIT_SWITCH_OFF);
+    // TOUCH PROBE IS NC (NORMALLY CLOSED)
+    TouchProbeManager::ACTIVE_INSTANCE.fIsTouchProbeTriggered = !isTouchProbePinHIGH;
+    TouchProbeManager::ACTIVE_INSTANCE.FireEvent(!isTouchProbePinHIGH ? EVENT_TOUCH_PROBE_ON : EVENT_TOUCH_PROBE_OFF);
 #endif
 }
 

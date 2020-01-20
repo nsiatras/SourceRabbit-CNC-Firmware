@@ -60,21 +60,26 @@ SOFTWARE.
 
 // Limit switches
 // To enable the use of Limit Switches uncomment the '#define ENABLE_LIMIT_SWITCHES'
-// For Normally Open (NO) limit switches uncomment the '#define LIMIT_SWITCHES_ARE_NO line'
-// For Normally Closed (NC) limit switches uncomment the '#define LIMIT_SWITCHES_ARE_NC line'
+// For Normally Open (NO) limit switches uncomment the '#define LIMIT_SWITCHES_ARE_NO' line
+// For Normally Closed (NC) limit switches uncomment the '#define LIMIT_SWITCHES_ARE_NC' line
 // Notice: After defining ENABLE_LIMIT_SWITCHES the machine
-// will require a homing cycle to get into idle status.
+// requires a homing cycle to get into idle status.
 #define ENABLE_LIMIT_SWITCHES // Uncomment to enable the use of limit switches
-//#define LIMIT_SWITCHES_ARE_NC // Uncomment if the limit switches are NC (Normally Closed)
-#define LIMIT_SWITCHES_ARE_NO // Uncomment if the limit switches are NO (Normally Open)
+//#define LIMIT_SWITCHES_ARE_NC
+#define LIMIT_SWITCHES_ARE_NO
+
+// Touch Probe
+// For Normally Open (NO) Touch Probe uncomment the '#define TOUCH_PROBE_IS_NO' line
+// For Normally Closed (NC) Touch Probe uncomment the '#define TOUCH_PROBE_IS_NC' line
+#define TOUCH_PROBE_IS_NO
+//#define TOUCH_PROBE_IS_NC
 
 // Homing directions
-//#define HOME_X_TO_MAX ;   // Uncomment to home X Axis to Max
-#define HOME_X_TO_MIN ; // Uncomment to home X Axis to 0
-//#define HOME_Y_TO_MAX ;   // Uncomment to home Y Axis to Max
-#define HOME_Y_TO_MIN ; // Uncomment to home X Axis to 0
-#define HOME_Z_TO_MAX ; // Uncomment to home Z Axis to Max
-//#define HOME_Z_TO_MIN;    // Uncomment to home X Axis to 0
+// Set the following to 1 in order to home the axes to Max or
+// set it to 0 in order to home the axes to Min.
+#define HOME_X_DIRECTION MIN_POSITION
+#define HOME_Y_DIRECTION MIN_POSITION
+#define HOME_Z_DIRECTION MAX_POSITION
 
 // Spindle Encoder (SUPPORT FOR SINGLE TICK ENCODERS)
 // To enable the use of Spindle Encoder uncomment the following line

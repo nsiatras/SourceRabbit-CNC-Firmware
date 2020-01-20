@@ -1,7 +1,8 @@
 {
+    "port": "COM3",
+    "programmer": "AVR ISP",
     "board": "arduino:avr:mega",
     "configuration": "cpu=atmega2560",
     "sketch": "SourceRabbit_CNC_Firmware.ino",
-    "programmer": "AVR ISP",
-    "port": "COM3"
+    "output": "output"
 }

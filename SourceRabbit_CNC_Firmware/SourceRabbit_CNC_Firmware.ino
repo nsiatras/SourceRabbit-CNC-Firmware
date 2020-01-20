@@ -21,16 +21,18 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#include <Arduino.h>
+#include <avr/wdt.h>
 #include "BoardPinout.h"
 #include "Core.h"
 #include "Config.h"
 #include "EError.h"
 #include "EMachineStatus.h"
+#include "ECommands.h"
 #include "Events.h"
 #include "Manager.h"
 #include "SerialConnectionManager.h"
 #include "LimitSwitchesManager.h"
+#include "TouchProbeManager.h"
 #include "StepperMotorManager.h"
 #include "MotionController.h"
 #include "SpindleEncoderManager.h"
@@ -42,6 +44,7 @@ void setup()
 {
     unsigned long microStart = micros();
 
+    // Initialize core always at the start of the  Setup() method
     InitializeCore();
 
     // Initialize Serial Communication Manager
@@ -56,9 +59,13 @@ void setup()
     LimitSwitchesManager::ACTIVE_INSTANCE.fEventHandlerVoid = EventHandler;
     LimitSwitchesManager::ACTIVE_INSTANCE.Initialize();
 
-    // Initialize Limit Switch Manager
+    // Initialize Spindle Encoder Manager
     SpindleEncoderManager::ACTIVE_INSTANCE.fEventHandlerVoid = EventHandler;
     SpindleEncoderManager::ACTIVE_INSTANCE.Initialize();
+
+    // Initialize Touch Probe Manager
+    TouchProbeManager::ACTIVE_INSTANCE.fEventHandlerVoid = EventHandler;
+    TouchProbeManager::ACTIVE_INSTANCE.Initialize();
 
     // Initialize the Machine
     Machine::ACTIVE_INSTANCE.Initialize();
@@ -74,25 +81,31 @@ void setup()
 
 void loop()
 {
+    // THIS MUST GO TO AN OTHER THREAD !!!!!
     SerialConnectionManager::ACTIVE_INSTANCE.ReadAvailableDataInSerial();
 }
 
-// All incoming messages from the serial connection passes
-// through here
+// All incoming messages from the serial connection passes through here
 void OnMessageReceivedFromSerialConnection(String message)
 {
-    if (message == "?")
+    if (message == COMMAND_STATUS_REPORT)
     {
         // Get the status report string from Machine
         // and send it to the PC client
         SerialConnectionManager::ACTIVE_INSTANCE.SendData(Machine::ACTIVE_INSTANCE.getMachineStatusReportString());
     }
-    else if (message == "$H")
+    else if (message == COMMAND_HOME_ALL_AXES)
     {
         // Home the machine
         Machine::ACTIVE_INSTANCE.StartHomingSequence();
         SerialConnectionManager::ACTIVE_INSTANCE.ReportOKForIncomingCommand();
         // Send a status report to the PC Client
+        SerialConnectionManager::ACTIVE_INSTANCE.SendData(Machine::ACTIVE_INSTANCE.getMachineStatusReportString());
+    }
+    else if (message == COMMAND_RESET)
+    {
+        // RESET Machine and  Send a status report to the PC Client
+        Machine::ACTIVE_INSTANCE.Reset();
         SerialConnectionManager::ACTIVE_INSTANCE.SendData(Machine::ACTIVE_INSTANCE.getMachineStatusReportString());
     }
     else
@@ -110,24 +123,29 @@ void EventHandler(uint8_t eventID)
     case EVENT_LIMIT_SWITCH_ON:
         // A LIMIT SWITCH IS ON !
         // This event comes from the LimitSwitchesManager
-        // INFORM ALL MANAGERS ABOUT IT
         StepperMotorManager::ACTIVE_INSTANCE.OnLimitSwitchOn_EventHandler();
-        SpindleEncoderManager::ACTIVE_INSTANCE.OnLimitSwitchOn_EventHandler();
         break;
 
     case EVENT_LIMIT_SWITCH_OFF:
         // A LIMIT SWITCH IS OFF !
         // This event comes from the LimitSwitchesManager
-        // INFORM ALL MANAGERS ABOUT IT
         StepperMotorManager::ACTIVE_INSTANCE.OnLimitSwitchOff_EventHandler();
-        SpindleEncoderManager::ACTIVE_INSTANCE.OnLimitSwitchOff_EventHandler();
         break;
 
-    case EVENT_TOUCH_PROBE_TOUCH:
+    case EVENT_TOUCH_PROBE_ON:
         // Touch probe has been touched
         // This event comes from the Touch Probe Manager
-        // INFORM ALL MANAGERS ABOUT IT
-        StepperMotorManager::ACTIVE_INSTANCE.OnTouchProbeTouch_EventHandler();
+        StepperMotorManager::ACTIVE_INSTANCE.OnTouchProbeOn_EventHandler();
+        break;
+
+    case EVENT_TOUCH_PROBE_OFF:
+        // Touch probe has been touched
+        // This event comes from the Touch Probe Manager
+        StepperMotorManager::ACTIVE_INSTANCE.OnTouchProbeOff_EventHandler();
         break;
     }
+
+#ifdef SHOW_DEBUG_MESSAGES
+    Serial.println("DEBUG:EventHandler::" + getEventNameFromID(eventID));
+#endif
 }

@@ -52,6 +52,10 @@ SOFTWARE.
 // Pin 2 is X+ (X MAX) Limit pin on Ramps 1.4 board
 #define SPINDLE_ENCODER_PIN 2
 
+// Touch Probe is connected to Pin 18
+// Pin 18 is the Z- (Z MIN) Limit Pin on the Ramps 1.4 Board
+#define TOUCH_PROBE_PIN 18
+
 #define FAN_PIN 9
 
 #define HEATER_0_PIN 10
