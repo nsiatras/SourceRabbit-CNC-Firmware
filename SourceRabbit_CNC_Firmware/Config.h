@@ -57,7 +57,7 @@ SOFTWARE.
 #define STEPPER_A_ACCELERATION 40   //mm/sec^2
 #define STEPPER_A_MAX_VELOCITY 1500 // mm/min
 
-#define STEPPERS_ALWAYS_ENABLED 1 // Set to 1 if you want steppers to be always enabled
+#define STEPPERS_ALWAYS_ENABLED // Uncomment to set Steppers Always enabled
 
 // Limit switches
 // To enable the use of Limit Switches uncomment the '#define ENABLE_LIMIT_SWITCHES'

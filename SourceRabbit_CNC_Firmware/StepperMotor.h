@@ -24,13 +24,17 @@ SOFTWARE.
 class StepperMotor
 {
 private:
-  byte fPinStep, fPinDir, fEnablePin;
+  uint8_t fPinStep, fPinDir, fEnablePin;
+  uint8_t fPinStep_BitMask, fPinDir_BitMask, fEnablePin_BitMask;
+  uint8_t fPinStep_Port, fPinDir_Port, fEnablePin_Port;
   int fStepsPerMM, fMaxVelocity;
   float fAcceleration;
 
 public:
   StepperMotor();
   void Initialize(byte, byte, byte, int, int, int);
+
+  void Step(int dir);
 };
 
 StepperMotor::StepperMotor()
@@ -47,7 +51,7 @@ StepperMotor::StepperMotor()
  * max velocity is the stepper's maximum velocity in mm/min
  * 
  * */
-void StepperMotor::Initialize(byte pinStep, byte pinDir, byte enablePin, int stepsPerMM, int acceleration, int maxVelocity_mm_per_min)
+void StepperMotor::Initialize(uint8_t pinStep, uint8_t pinDir, uint8_t enablePin, int stepsPerMM, int acceleration, int maxVelocity_mm_per_min)
 {
   fPinStep = pinStep;
   fPinDir = pinDir;
@@ -55,4 +59,26 @@ void StepperMotor::Initialize(byte pinStep, byte pinDir, byte enablePin, int ste
   fStepsPerMM = stepsPerMM;
   fAcceleration = acceleration / (60 ^ 2);
   fMaxVelocity = maxVelocity_mm_per_min;
+
+  fPinStep_BitMask = ARDUINO_PIN_TO_BITMASK_MATRIX[fPinStep];
+  fPinDir_BitMask = ARDUINO_PIN_TO_BITMASK_MATRIX[pinDir];
+  fEnablePin_BitMask = ARDUINO_PIN_TO_BITMASK_MATRIX[enablePin];
+
+  fPinStep_Port = ARDUINO_PIN_TO_PORT_MATRIX[fPinStep];
+  fPinDir_Port = ARDUINO_PIN_TO_PORT_MATRIX[pinDir];
+  fEnablePin_Port = ARDUINO_PIN_TO_PORT_MATRIX[enablePin];
+
+#ifdef STEPPERS_ALWAYS_ENABLED
+  FastDigitalWrite(fEnablePin_BitMask, fEnablePin_Port, HIGH);
+#endif
+}
+
+void StepperMotor::Step(int dir)
+{
+#ifndef STEPPERS_ALWAYS_ENABLED
+  FastDigitalWrite(fEnablePin_BitMask, fEnablePin_Port, HIGH);
+#endif
+  FastDigitalWrite(fPinDir_BitMask, fPinDir_Port, dir);
+  FastDigitalWrite(fPinStep_BitMask, fPinStep_Port, HIGH);
+  FastDigitalWrite(fPinStep_BitMask, fPinStep_Port, LOW);
 }

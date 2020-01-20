@@ -58,4 +58,24 @@ bool isPinHigh(uint8_t arduinoPinNo)
     return !(*portInputRegister(ARDUINO_PIN_TO_PORT_MATRIX[arduinoPinNo]) & ARDUINO_PIN_TO_BITMASK_MATRIX[arduinoPinNo]);
 }
 
+void FastDigitalWrite(uint8_t bit, uint8_t port, uint8_t val)
+{
+    volatile uint8_t *out;
+    out = portOutputRegister(port);
+
+    uint8_t oldSREG = SREG;
+    cli();
+
+    if (val == LOW)
+    {
+        *out &= ~bit;
+    }
+    else
+    {
+        *out |= bit;
+    }
+
+    SREG = oldSREG;
+}
+
 #endif
