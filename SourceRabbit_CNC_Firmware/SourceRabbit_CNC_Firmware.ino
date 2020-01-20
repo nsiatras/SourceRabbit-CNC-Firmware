@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#include <avr/wdt.h>
+
 #include "BoardPinout.h"
 #include "Core.h"
 #include "Config.h"
@@ -42,13 +42,11 @@ SOFTWARE.
 
 void setup()
 {
-    unsigned long microStart = micros();
-
     // Initialize core always at the start of the  Setup() method
     InitializeCore();
 
     // Initialize Serial Communication Manager
-    SerialConnectionManager::ACTIVE_INSTANCE.fOnMessageReceivedFromSerialConnectionCall = OnMessageReceivedFromSerialConnection;
+    SerialConnectionManager::ACTIVE_INSTANCE.fOnMessageReceivedFromSerialConnectionCall = ParseReceivedMessageFromSerialConnection;
     SerialConnectionManager::ACTIVE_INSTANCE.Initialize();
 
     // Initialize Stepper Motor Manager
@@ -72,46 +70,50 @@ void setup()
 
     // EVERYTHING IS INITIALIZED
     // Send the welcome message to the PC Client
-    unsigned long microsEnd = micros();
-    Serial.print(WELCOME_MESSAGE);
-    Serial.print("(Booted in ");
-    Serial.print(String(microsEnd - microStart));
-    Serial.println(" usec)");
+    SerialConnectionManager::ACTIVE_INSTANCE.SendData(WELCOME_MESSAGE);
 }
 
 void loop()
 {
-    // THIS MUST GO TO AN OTHER THREAD !!!!!
-    SerialConnectionManager::ACTIVE_INSTANCE.ReadAvailableDataInSerial();
+    ParseReceivedMessageFromSerialConnection(SerialConnectionManager::ACTIVE_INSTANCE.getFirstIncomingMessageFromQueue());
+}
+
+// This is the asynchronous serial read
+void serialEvent()
+{
+    SerialConnectionManager::ACTIVE_INSTANCE.ReadAllAvailableIncomingSerialData();
 }
 
 // All incoming messages from the serial connection passes through here
-void OnMessageReceivedFromSerialConnection(String message)
+void ParseReceivedMessageFromSerialConnection(String message)
 {
-    if (message == COMMAND_STATUS_REPORT)
+    if (message != "")
     {
-        // Get the status report string from Machine
-        // and send it to the PC client
-        SerialConnectionManager::ACTIVE_INSTANCE.SendData(Machine::ACTIVE_INSTANCE.getMachineStatusReportString());
-    }
-    else if (message == COMMAND_HOME_ALL_AXES)
-    {
-        // Home the machine
-        Machine::ACTIVE_INSTANCE.StartHomingSequence();
-        SerialConnectionManager::ACTIVE_INSTANCE.ReportOKForIncomingCommand();
-        // Send a status report to the PC Client
-        SerialConnectionManager::ACTIVE_INSTANCE.SendData(Machine::ACTIVE_INSTANCE.getMachineStatusReportString());
-    }
-    else if (message == COMMAND_RESET)
-    {
-        // RESET Machine and  Send a status report to the PC Client
-        Machine::ACTIVE_INSTANCE.Reset();
-        SerialConnectionManager::ACTIVE_INSTANCE.SendData(Machine::ACTIVE_INSTANCE.getMachineStatusReportString());
-    }
-    else
-    {
-        // Send Unknown Command error to PC Client
-        SerialConnectionManager::ACTIVE_INSTANCE.ReportErrorForIncomingCommand(ERROR_UNKOWN_COMMAND);
+        if (message == COMMAND_STATUS_REPORT)
+        {
+            // Get the status report string from Machine
+            // and send it to the PC client
+            SerialConnectionManager::ACTIVE_INSTANCE.SendData(Machine::ACTIVE_INSTANCE.getMachineStatusReportString());
+        }
+        else if (message == COMMAND_HOME_ALL_AXES)
+        {
+            // Home the machine
+            Machine::ACTIVE_INSTANCE.StartHomingSequence();
+            SerialConnectionManager::ACTIVE_INSTANCE.ReportOKForIncomingCommand();
+            // Send a status report to the PC Client
+            SerialConnectionManager::ACTIVE_INSTANCE.SendData(Machine::ACTIVE_INSTANCE.getMachineStatusReportString());
+        }
+        else if (message == COMMAND_RESET)
+        {
+            // RESET Machine and  Send a status report to the PC Client
+            Machine::ACTIVE_INSTANCE.Reset();
+            SerialConnectionManager::ACTIVE_INSTANCE.SendData(Machine::ACTIVE_INSTANCE.getMachineStatusReportString());
+        }
+        else
+        {
+            // Send Unknown Command error to PC Client
+            SerialConnectionManager::ACTIVE_INSTANCE.ReportErrorForIncomingCommand(ERROR_UNKOWN_COMMAND);
+        }
     }
 }
 

@@ -23,16 +23,17 @@ SOFTWARE.
 */
 
 // To see debug messages through serial connection uncomment the following line
-#define SHOW_DEBUG_MESSAGES
+//#define SHOW_DEBUG_MESSAGES
 
 // This message is sent from the control board to the PC client
 // from the SerialConnectionManager after the Serial connection established
 #define WELCOME_MESSAGE "SourceRabbit CNC Firmware 1.1"
 
 // Serial Connection Parameters
-#define SERIAL_CONNECTION_BAUD_RATE 115200           // The baudrate of the serial connection
-#define SERIAL_CONNECTION_INCOMING_BUFFER_SIZE 128   // The size of the incoming buffer in bytes
-#define SERIAL_CONNECTION_MESSAGE_SPLIT_CHARACTER 10 // Character /n
+#define SERIAL_CONNECTION_BAUD_RATE 115200               // The baudrate of the serial connection
+#define SERIAL_CONNECTION_INCOMING_BUFFER_SIZE 128       // The size of the incoming buffer in bytes
+#define SERIAL_CONNECTION_MESSAGE_SPLIT_CHARACTER 10     // Character /n
+#define SERIAL_CONNECTION_MAX_INCOMING_MESSAGES_BUFFER 8 // How many incoming messages to store in ram and wait for them to be processed
 
 #define MAX_X_TRAVEL 300
 #define MAX_Y_TRAVEL 200

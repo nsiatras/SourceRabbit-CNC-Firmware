@@ -35,6 +35,7 @@ public:
     void (*fEventHandlerVoid)(uint8_t);
     void FireEvent(uint8_t eventID);
 
+    virtual void OnError_EventHandler(uint8_t errorID);
     virtual void OnLimitSwitchOn_EventHandler();
     virtual void OnLimitSwitchOff_EventHandler();
     virtual void OnTouchProbeOn_EventHandler();
@@ -48,6 +49,12 @@ void Manager::Initialize()
 }
 
 void Manager::Reset()
+{
+    // This method is virtual
+    // No code required here
+}
+
+void Manager::OnError_EventHandler(uint8_t errorID)
 {
     // This method is virtual
     // No code required here

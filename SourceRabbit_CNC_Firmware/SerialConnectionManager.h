@@ -21,16 +21,27 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+
+#include "Queue.h"
+
 class SerialConnectionManager : public Manager
 {
 private:
-    String fMessage;                                              // A temporary variable to keep last full/clear message
-    char fIncomingBuffer[SERIAL_CONNECTION_INCOMING_BUFFER_SIZE]; // The buffer to collect incoming data
-    uint8_t fBufferIndex;                                         // The incoming data buffer index
+    char fIncomingBuffer[SERIAL_CONNECTION_INCOMING_BUFFER_SIZE]; // The buffer to collect incoming bytes
+    uint8_t fIncomingBufferIndex;                                 // The incoming data buffer index
+
+    String fTempMessage; // A temporary variable to keep last full/clear message
+    Queue<String> *fIncomingMessagesQueue;
+
 public:
     static SerialConnectionManager ACTIVE_INSTANCE; // Create a static Active Instance for the SerialConnectionManager
     void Initialize();
-    void ReadAvailableDataInSerial();
+
+    void ReadAllAvailableIncomingSerialData();
+
+    String getFirstIncomingMessageFromQueue();
+    bool QueueHasIncomingMessages();
+
     void SendData(String dataToSend);
     void ReportOKForIncomingCommand();
     void ReportErrorForIncomingCommand(uint8_t errorID);
@@ -46,12 +57,17 @@ void SerialConnectionManager::Initialize()
 
     Serial.begin(SERIAL_CONNECTION_BAUD_RATE);
 
-    fMessage = "";
+    fTempMessage = "";
+
+    // Initialize fIncomingBuffer
     for (uint8_t i = 0; i < SERIAL_CONNECTION_INCOMING_BUFFER_SIZE; i++)
     {
         fIncomingBuffer[i] = 0;
     }
-    fBufferIndex = 0;
+    fIncomingBufferIndex = 0;
+
+    // Initialize fIncomingMessagesQueue
+    fIncomingMessagesQueue = new Queue<String>(SERIAL_CONNECTION_MAX_INCOMING_MESSAGES_BUFFER);
 }
 
 void SerialConnectionManager::ReportOKForIncomingCommand()
@@ -70,30 +86,55 @@ void SerialConnectionManager::ReportErrorForIncomingCommand(uint8_t errorID)
     Serial.println(errorID);
 }
 
-void SerialConnectionManager::ReadAvailableDataInSerial()
+// This method returns the first incoming message
+// from the fIncomingMessagesQueue;
+String SerialConnectionManager::getFirstIncomingMessageFromQueue()
 {
-    if (Serial.available() > 0)
+    if (fIncomingMessagesQueue->count() > 0)
     {
-        // Read the available byte
-        uint8_t receivedByte = Serial.read();
+        return fIncomingMessagesQueue->pop();
+    }
+    return "";
+}
 
+bool SerialConnectionManager::QueueHasIncomingMessages()
+{
+    return fIncomingMessagesQueue->count() > 0;
+}
+
+void SerialConnectionManager::ReadAllAvailableIncomingSerialData()
+{
+    // Read incoming bytes until the buffer is full or until
+    // a complete message is read
+    while (Serial.available() && fIncomingBufferIndex < SERIAL_CONNECTION_INCOMING_BUFFER_SIZE && fIncomingMessagesQueue->count() < SERIAL_CONNECTION_MAX_INCOMING_MESSAGES_BUFFER)
+    {
+        uint8_t receivedByte = Serial.read();
         switch (receivedByte)
         {
         case SERIAL_CONNECTION_MESSAGE_SPLIT_CHARACTER:
             // Get full/clear message
-            fMessage = "";
-            for (uint8_t i = 0; i < fBufferIndex; i++)
+            fTempMessage = "";
+            for (uint8_t i = 0; i < fIncomingBufferIndex; i++)
             {
-                fMessage = fMessage + fIncomingBuffer[i];
+                fTempMessage = fTempMessage + fIncomingBuffer[i];
             }
-            fBufferIndex = 0;
-            fOnMessageReceivedFromSerialConnectionCall(fMessage);
+            fIncomingBufferIndex = 0;
+
+            fIncomingMessagesQueue->push(fTempMessage);
             break;
 
         default:
-            fIncomingBuffer[fBufferIndex] = receivedByte;
-            fBufferIndex++;
+            fIncomingBuffer[fIncomingBufferIndex] = receivedByte;
+            fIncomingBufferIndex++;
             break;
         }
+    }
+
+    if (fIncomingBufferIndex >= SERIAL_CONNECTION_INCOMING_BUFFER_SIZE)
+    {
+        // BUFFER OVERRUN !!!!
+        fIncomingBufferIndex = 0;
+        Serial.flush();
+        OnError_EventHandler(ERROR_SERIAL_BUFFER_OVVERRUN);
     }
 }

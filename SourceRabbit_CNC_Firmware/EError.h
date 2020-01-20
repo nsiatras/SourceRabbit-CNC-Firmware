@@ -26,6 +26,7 @@ SOFTWARE.
 #define EERROR
 
 uint8_t ERROR_UNKOWN_COMMAND = 1; // Unkown command
-uint8_t MACHINE_IS_LOCKED = 2;    // Machine requires a homing cycle in order to unlock
+uint8_t ERROR_MACHINE_IS_LOCKED = 2;    // Machine requires a homing cycle in order to unlock
+uint8_t ERROR_SERIAL_BUFFER_OVVERRUN = 3;
 
 #endif
