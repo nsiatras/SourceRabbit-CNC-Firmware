@@ -61,17 +61,6 @@ void InitializeCore()
         }
     }
 
-    for (uint8_t i = 0; i < 78; i++)
-    {
-        if (ARDUINO_PIN_TO_PORT_MATRIX[i] != NOT_A_PIN)
-        {
-            ARDUINO_PIN_TO_PORT_OUTPUT_REGISTER[i] = *portOutputRegister(ARDUINO_PIN_TO_PORT_MATRIX[i]);
-        }
-        else
-        {
-            Serial.println(String(i) + " not a pin");
-        }
-    }
 }
 
 // CAUTION: This method bypasses the arduino's digitalRead method
