@@ -32,7 +32,7 @@ private:
 
 public:
   StepperMotor();
-  void Initialize(byte, byte, byte, int, int, int);
+  void Initialize(uint8_t, uint8_t, uint8_t, int, int, int);
 
   void Step(int dir);
 };

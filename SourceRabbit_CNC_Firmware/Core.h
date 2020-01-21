@@ -57,7 +57,6 @@ void InitializeCore()
 
         if (digitalPinToPort(i) != NOT_A_PIN)
         {
-            //fArduinoMegaPinsMatrix[i] = {portOutputRegister(port), portInputRegister(port), bit, port};
             fArduinoMegaPinsMatrix[i] = {out, portInputRegister(port), bit, port};
         }
     }
