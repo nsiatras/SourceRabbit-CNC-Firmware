@@ -35,50 +35,51 @@ SOFTWARE.
 #define MAX_POSITION true
 #define MIN_POSITION false
 
-int8_t ARDUINO_PIN_TO_BITMASK_MATRIX[78];
-uint8_t ARDUINO_PIN_TO_PORT_MATRIX[78];
-uint8_t ARDUINO_PIN_TO_PORT_OUTPUT_REGISTER[78];
+struct PinInfo
+{
+    volatile uint8_t *PortOutputRegister;
+    volatile uint8_t *PortInputRegister;
+    uint8_t BITMASK;
+    uint8_t PORT;
+};
+
+PinInfo fArduinoMegaPinsMatrix[78]; // Arduino Mega Pins
 
 void InitializeCore()
 {
     for (uint8_t i = 0; i < 78; i++)
     {
+        uint8_t bit = digitalPinToBitMask(i);
+        uint8_t port = digitalPinToPort(i);
+
+        volatile uint8_t *out;
+        out = portOutputRegister(port);
+
         if (digitalPinToPort(i) != NOT_A_PIN)
         {
-            ARDUINO_PIN_TO_PORT_MATRIX[i] = digitalPinToPort(i);
-        }
-        else
-        {
-            ARDUINO_PIN_TO_PORT_MATRIX[i] = NOT_A_PIN;
+            //fArduinoMegaPinsMatrix[i] = {portOutputRegister(port), portInputRegister(port), bit, port};
+            fArduinoMegaPinsMatrix[i] = {out, portInputRegister(port), bit, port};
         }
     }
-
-    for (int8_t i = 0; i < 78; i++)
-    {
-        if (ARDUINO_PIN_TO_PORT_MATRIX[i] != NOT_A_PIN)
-        {
-            ARDUINO_PIN_TO_BITMASK_MATRIX[i] = digitalPinToBitMask(i);
-        }
-    }
-
 }
 
 // CAUTION: This method bypasses the arduino's digitalRead method
 // Return's true if a pin is HIGH otherwise it returns false
 bool isPinHigh(uint8_t arduinoPinNo)
 {
-    return !(*portInputRegister(ARDUINO_PIN_TO_PORT_MATRIX[arduinoPinNo]) & ARDUINO_PIN_TO_BITMASK_MATRIX[arduinoPinNo]);
+    return !(*fArduinoMegaPinsMatrix[arduinoPinNo].PortInputRegister & fArduinoMegaPinsMatrix[arduinoPinNo].BITMASK);
 }
 
-void FastDigitalWrite(uint8_t portOutputReg, uint8_t bit, uint8_t val)
+// CAUTION: This method bypasses the arduino's digitalWrite method
+void FastDigitalWrite(uint8_t arduinoPinNo, int value)
 {
-    if (val == LOW)
+    if (value == LOW)
     {
-        portOutputReg &= ~bit;
+        *(fArduinoMegaPinsMatrix[arduinoPinNo].PortOutputRegister) &= ~fArduinoMegaPinsMatrix[arduinoPinNo].BITMASK;
     }
     else
     {
-        portOutputReg |= bit;
+        *(fArduinoMegaPinsMatrix[arduinoPinNo].PortOutputRegister) |= fArduinoMegaPinsMatrix[arduinoPinNo].BITMASK;
     }
 }
 
