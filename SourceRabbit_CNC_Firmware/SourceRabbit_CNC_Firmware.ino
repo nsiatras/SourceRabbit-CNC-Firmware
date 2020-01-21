@@ -105,7 +105,7 @@ void ParseReceivedMessageFromSerialConnection(String message)
         }
         else if (message == COMMAND_RESET)
         {
-            // RESET Machine and  Send a status report to the PC Client
+            // RESET Machine and Send a status report to the PC Client
             Machine::ACTIVE_INSTANCE.Reset();
             SerialConnectionManager::ACTIVE_INSTANCE.SendData(Machine::ACTIVE_INSTANCE.getMachineStatusReportString());
         }
@@ -144,6 +144,10 @@ void EventHandler(uint8_t eventID)
         // Touch probe has been touched
         // This event comes from the Touch Probe Manager
         StepperMotorManager::ACTIVE_INSTANCE.OnTouchProbeOff_EventHandler();
+        break;
+
+    case EVENT_ERROR_SERIAL_BUFFER_OVVERRUN:
+        StepperMotorManager::ACTIVE_INSTANCE.OnError_EventHandler(ERROR_SERIAL_BUFFER_OVVERRUN);
         break;
     }
 

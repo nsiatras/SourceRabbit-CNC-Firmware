@@ -135,6 +135,6 @@ void SerialConnectionManager::ReadAllAvailableIncomingSerialData()
         // BUFFER OVERRUN !!!!
         fIncomingBufferIndex = 0;
         Serial.flush();
-        OnError_EventHandler(ERROR_SERIAL_BUFFER_OVVERRUN);
+        FireEvent(EVENT_ERROR_SERIAL_BUFFER_OVVERRUN);
     }
 }
