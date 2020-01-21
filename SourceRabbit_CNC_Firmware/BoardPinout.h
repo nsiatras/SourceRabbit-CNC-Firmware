@@ -43,6 +43,10 @@ SOFTWARE.
 #define STEPPER_A_DIR_PIN 28    // Stepper A DIR Pin is the Extruder0 DIR pin on Ramps 1.4 board
 #define STEPPER_A_ENABLE_PIN 24 // Stepper A ENABLE Pin is the Extruder0 ENABLE on in Ramps 1.4 board
 
+#define STEPPER_B_STEP_PIN 36   // Stepper B STEP Pin is the Extruder1 DIR pin on Ramps 1.4 board
+#define STEPPER_B_DIR_PIN 34    // Stepper B DIR Pin is the Extruder1 DIR pin on Ramps 1.4 board
+#define STEPPER_B_ENABLE_PIN 30 // Stepper B ENABLE Pin is the Extruder0 ENABLE on in Ramps 1.4 board
+
 // Limit switches are connected in series in Pin 3 .
 // Limit switches are NC (Normaly Closed) .
 // Pin 3 is X- (X MIN) Limit pin on Ramps 1.4 board

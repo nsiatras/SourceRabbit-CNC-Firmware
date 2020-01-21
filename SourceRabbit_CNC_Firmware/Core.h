@@ -35,19 +35,42 @@ SOFTWARE.
 #define MAX_POSITION true
 #define MIN_POSITION false
 
-int8_t ARDUINO_PIN_TO_BITMASK_MATRIX[54];
-uint8_t ARDUINO_PIN_TO_PORT_MATRIX[54];
+int8_t ARDUINO_PIN_TO_BITMASK_MATRIX[78];
+uint8_t ARDUINO_PIN_TO_PORT_MATRIX[78];
+uint8_t ARDUINO_PIN_TO_PORT_OUTPUT_REGISTER[78];
 
 void InitializeCore()
 {
-    for (int8_t i = 0; i < 54; i++)
+    for (uint8_t i = 0; i < 78; i++)
     {
-        ARDUINO_PIN_TO_BITMASK_MATRIX[i] = digitalPinToBitMask(i);
+        if (digitalPinToPort(i) != NOT_A_PIN)
+        {
+            ARDUINO_PIN_TO_PORT_MATRIX[i] = digitalPinToPort(i);
+        }
+        else
+        {
+            ARDUINO_PIN_TO_PORT_MATRIX[i] = NOT_A_PIN;
+        }
     }
 
-    for (uint8_t i = 0; i < 54; i++)
+    for (int8_t i = 0; i < 78; i++)
     {
-        ARDUINO_PIN_TO_PORT_MATRIX[i] = digitalPinToPort(i);
+        if (ARDUINO_PIN_TO_PORT_MATRIX[i] != NOT_A_PIN)
+        {
+            ARDUINO_PIN_TO_BITMASK_MATRIX[i] = digitalPinToBitMask(i);
+        }
+    }
+
+    for (uint8_t i = 0; i < 78; i++)
+    {
+        if (ARDUINO_PIN_TO_PORT_MATRIX[i] != NOT_A_PIN)
+        {
+            ARDUINO_PIN_TO_PORT_OUTPUT_REGISTER[i] = *portOutputRegister(ARDUINO_PIN_TO_PORT_MATRIX[i]);
+        }
+        else
+        {
+            Serial.println(String(i) + " not a pin");
+        }
     }
 }
 
@@ -58,24 +81,16 @@ bool isPinHigh(uint8_t arduinoPinNo)
     return !(*portInputRegister(ARDUINO_PIN_TO_PORT_MATRIX[arduinoPinNo]) & ARDUINO_PIN_TO_BITMASK_MATRIX[arduinoPinNo]);
 }
 
-void FastDigitalWrite(uint8_t bit, uint8_t port, uint8_t val)
+void FastDigitalWrite(uint8_t portOutputReg, uint8_t bit, uint8_t val)
 {
-    volatile uint8_t *out;
-    out = portOutputRegister(port);
-
-    uint8_t oldSREG = SREG;
-    cli();
-
     if (val == LOW)
     {
-        *out &= ~bit;
+        portOutputReg &= ~bit;
     }
     else
     {
-        *out |= bit;
+        portOutputReg |= bit;
     }
-
-    SREG = oldSREG;
 }
 
 #endif

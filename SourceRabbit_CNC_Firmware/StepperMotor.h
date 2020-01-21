@@ -27,7 +27,10 @@ private:
   uint8_t fPinStep, fPinDir, fEnablePin;
   uint8_t fPinStep_BitMask, fPinDir_BitMask, fEnablePin_BitMask;
   uint8_t fPinStep_Port, fPinDir_Port, fEnablePin_Port;
+  uint8_t fPinStep_Port_Ouput_Register, fPinDir_Port_Ouput_Register, fEnablePin_Port_Ouput_Register;
   int fStepsPerMM, fMaxVelocity;
+
+  volatile uint8_t *fPinStepOutputRegister;
   float fAcceleration;
 
 public:
@@ -68,17 +71,33 @@ void StepperMotor::Initialize(uint8_t pinStep, uint8_t pinDir, uint8_t enablePin
   fPinDir_Port = ARDUINO_PIN_TO_PORT_MATRIX[pinDir];
   fEnablePin_Port = ARDUINO_PIN_TO_PORT_MATRIX[enablePin];
 
+  fPinStep_Port_Ouput_Register = ARDUINO_PIN_TO_PORT_OUTPUT_REGISTER[fPinStep];
+  fPinDir_Port_Ouput_Register = ARDUINO_PIN_TO_PORT_OUTPUT_REGISTER[pinDir];
+  fEnablePin_Port_Ouput_Register = ARDUINO_PIN_TO_PORT_OUTPUT_REGISTER[enablePin];
+
 #ifdef STEPPERS_ALWAYS_ENABLED
-  FastDigitalWrite(fEnablePin_BitMask, fEnablePin_Port, HIGH);
+  FastDigitalWrite(fEnablePin_Port_Ouput_Register, fEnablePin_BitMask, HIGH);
 #endif
 }
 
 void StepperMotor::Step(int dir)
 {
 #ifndef STEPPERS_ALWAYS_ENABLED
-  FastDigitalWrite(fEnablePin_BitMask, fEnablePin_Port, HIGH);
+  FastDigitalWrite(fEnablePin_Port_Ouput_Register, fEnablePin_BitMask, HIGH);
 #endif
-  FastDigitalWrite(fPinDir_BitMask, fPinDir_Port, dir);
-  FastDigitalWrite(fPinStep_BitMask, fPinStep_Port, HIGH);
-  FastDigitalWrite(fPinStep_BitMask, fPinStep_Port, LOW);
+
+  // Set direction (DIR pin)
+  FastDigitalWrite(fPinDir_Port_Ouput_Register, fPinDir_BitMask, dir);
+
+  // HIGH Step Port
+  FastDigitalWrite(fPinStep_Port_Ouput_Register, fPinStep_BitMask, HIGH);
+
+  // Delay
+  delayMicroseconds(STEPPERS_MIN_PULSE_WIDTH_MICROSECONDS);
+
+  // LOW Step Port
+  FastDigitalWrite(fPinStep_Port_Ouput_Register, fPinStep_BitMask, LOW);
+
+  // Delay
+  delayMicroseconds(STEPPERS_MIN_PULSE_WIDTH_MICROSECONDS);
 }
