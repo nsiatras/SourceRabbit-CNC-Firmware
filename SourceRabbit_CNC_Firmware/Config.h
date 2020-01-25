@@ -27,6 +27,9 @@ SOFTWARE.
 
 // This message is sent from the control board to the PC client
 // from the SerialConnectionManager after the Serial connection established
+#ifndef CONFIG_H
+#define CONFIG_H
+
 #define WELCOME_MESSAGE "SourceRabbit CNC Firmware 1.1"
 
 // Serial Connection Parameters
@@ -43,19 +46,19 @@ SOFTWARE.
 
 #define STEPPER_X_STEPS_PER_MM 200  // Steps / mm
 #define STEPPER_X_ACCELERATION 40   //mm/sec^2
-#define STEPPER_X_MAX_VELOCITY 1500 // mm/min
+#define STEPPER_X_MAX_FEEDRATE 1500 // mm/min
 
 #define STEPPER_Y_STEPS_PER_MM 200  // Steps / mm
 #define STEPPER_Y_ACCELERATION 40   //mm/sec^2
-#define STEPPER_Y_MAX_VELOCITY 1500 // mm/min
+#define STEPPER_Y_MAX_FEEDRATE 1500 // mm/min
 
 #define STEPPER_Z_STEPS_PER_MM 200  // Steps / mm
 #define STEPPER_Z_ACCELERATION 40   //mm/sec^2
-#define STEPPER_Z_MAX_VELOCITY 1500 // mm/min
+#define STEPPER_Z_MAX_FEEDRATE 1500 // mm/min
 
 #define STEPPER_A_STEPS_PER_MM 200  // Steps / mm
 #define STEPPER_A_ACCELERATION 40   //mm/sec^2
-#define STEPPER_A_MAX_VELOCITY 1500 // mm/min
+#define STEPPER_A_MAX_FEEDRATE 1500 // mm/min
 
 #define STEPPERS_ALWAYS_ENABLED // Uncomment to set Steppers Always enabled
 
@@ -85,3 +88,5 @@ SOFTWARE.
 // Spindle Encoder (SUPPORT FOR SINGLE TICK ENCODERS)
 // To enable the use of Spindle Encoder uncomment the following line
 #define ENABLE_SPINDLE_ENCODER
+
+#endif

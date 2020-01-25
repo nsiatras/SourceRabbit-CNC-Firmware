@@ -27,6 +27,9 @@ SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////////////////
 // NOTICE ARDUINO MEGA External Interrupt pins: 2,3,18,19,20,21
 
+#ifndef BOARDPINOUT_H
+#define BOARDPINOUT_H
+
 #define STEPPER_X_STEP_PIN 54
 #define STEPPER_X_DIR_PIN 55
 #define STEPPER_X_ENABLE_PIN 38
@@ -112,3 +115,5 @@ SOFTWARE.
 #define TEMP_1_PIN         14   // ANALOG NUMBERING
 #define TEMP_2_PIN         15   // ANALOG NUMBERING
 */
+
+#endif

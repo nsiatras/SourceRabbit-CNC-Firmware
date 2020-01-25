@@ -25,6 +25,7 @@ SOFTWARE.
 #define MACHINE_H
 
 #include "EMachineStatus.h"
+#include "EAxis.h"
 
 class Machine
 {
@@ -42,7 +43,7 @@ public:
     String getMachineStatusReportString();
 
     void StartHomingSequence();
-    void HomeAxis(int axis);
+    void HomeAxis(EAxis axis);
     void MoveAxisToHomePosition(int axis);
 
     String getCurrentStatusInStringFormat();
@@ -73,9 +74,9 @@ void Machine::StartHomingSequence()
     fCurrentMachineStatus = MACHINESTATUS_HOMING;
 
     // Home the 3 axis
-    HomeAxis(Z_AXIS); // First home the Z Axis
-    HomeAxis(X_AXIS);
-    HomeAxis(Y_AXIS);
+    HomeAxis(AXIS_Z); // First home the Z Axis
+    HomeAxis(AXIS_X);
+    HomeAxis(AXIS_Y);
 
     fWorkXPosition = 0;
     fWorkYPosition = 0;
@@ -86,22 +87,22 @@ void Machine::StartHomingSequence()
     fCurrentMachineStatus = MACHINESTATUS_IDLE;
 }
 
-void Machine::HomeAxis(int axis)
+void Machine::HomeAxis(EAxis axis)
 {
     // Call the StepperMotorManager::ACTIVE_INSTANCE.MoveAxisToHomePosition for the given axis
     StepperMotorManager::ACTIVE_INSTANCE.MoveAxisToHomePosition(axis);
 
     switch (axis)
     {
-    case X_AXIS:
+    case AXIS_X:
         fMachineXPosition = (HOME_X_DIRECTION == MAX_POSITION) ? MAX_X_TRAVEL * -1 : 0;
         break;
 
-    case Y_AXIS:
+    case AXIS_Y:
         fMachineYPosition = (HOME_Y_DIRECTION == MAX_POSITION) ? MAX_Y_TRAVEL * -1 : 0;
         break;
 
-    case Z_AXIS:
+    case AXIS_Z:
         fMachineZPosition = (HOME_Z_DIRECTION == MAX_POSITION) ? MAX_Z_TRAVEL * -1 : 0;
         break;
     }

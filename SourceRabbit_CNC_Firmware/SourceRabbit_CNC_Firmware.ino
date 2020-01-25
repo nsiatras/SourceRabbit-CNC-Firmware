@@ -21,13 +21,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
+#include <AccelStepper.h>
+#include <MultiStepper.h>
 #include "BoardPinout.h"
 #include "Core.h"
 #include "Config.h"
 #include "EError.h"
 #include "EMachineStatus.h"
 #include "ECommands.h"
+#include "EAxis.h"
 #include "Events.h"
 #include "Manager.h"
 #include "SerialConnectionManager.h"
