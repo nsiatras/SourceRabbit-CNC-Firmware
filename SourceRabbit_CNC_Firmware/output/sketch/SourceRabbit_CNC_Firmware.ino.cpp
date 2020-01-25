@@ -1,3 +1,6 @@
+#include <Arduino.h>
+#line 1 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
+#line 1 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
 /*
 MIT License
 
@@ -21,15 +24,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#include <AccelStepper.h>
-#include <MultiStepper.h>
+
 #include "BoardPinout.h"
 #include "Core.h"
 #include "Config.h"
 #include "EError.h"
 #include "EMachineStatus.h"
 #include "ECommands.h"
-#include "EAxis.h"
 #include "Events.h"
 #include "Manager.h"
 #include "SerialConnectionManager.h"
@@ -42,6 +43,17 @@ SOFTWARE.
 // MACHINE ALWAYS AT THE END
 #include "Machine.h"
 
+#line 43 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
+void setup();
+#line 76 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
+void loop();
+#line 89 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
+void serialEvent();
+#line 95 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
+void ParseReceivedMessageFromSerialConnection(String message);
+#line 128 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
+void EventHandler(uint8_t eventID);
+#line 43 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
 void setup()
 {
     // Initialize core always at the start of the  Setup() method
@@ -80,6 +92,7 @@ void loop()
     ParseReceivedMessageFromSerialConnection(SerialConnectionManager::ACTIVE_INSTANCE.getFirstIncomingMessageFromQueue());
 
     delay(1000);
+
     StepperMotorManager::ACTIVE_INSTANCE.fStepperMotorX.Move(10);
     delay(2000);
     StepperMotorManager::ACTIVE_INSTANCE.fStepperMotorX.Move(-10);
