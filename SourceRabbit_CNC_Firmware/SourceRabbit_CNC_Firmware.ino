@@ -80,9 +80,9 @@ void loop()
     ParseReceivedMessageFromSerialConnection(SerialConnectionManager::ACTIVE_INSTANCE.getFirstIncomingMessageFromQueue());
 
     delay(1000);
-    StepperMotorManager::ACTIVE_INSTANCE.fStepperMotorX.Move(10);
+    //StepperMotorManager::ACTIVE_INSTANCE.MoveStepper(AXIS_X, 100, 1500);
     delay(2000);
-    StepperMotorManager::ACTIVE_INSTANCE.fStepperMotorX.Move(-10);
+    //StepperMotorManager::ACTIVE_INSTANCE.MoveStepper(AXIS_X, -100, 1500);
     delay(2000);
 }
 

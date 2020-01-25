@@ -32,8 +32,8 @@ class Machine
 private:
     EMachineStatus fCurrentMachineStatus;
 
-    float fMachineXPosition = 0, fMachineYPosition = 0, fMachineZPosition = 0, fMachineAPosition = 0;
-    float fWorkXPosition = 0, fWorkYPosition = 0, fWorkZPosition = 0, fWorkAPosition = 0;
+    float fMachineXPosition = 0, fMachineYPosition = 0, fMachineZPosition = 0, fMachineAPosition = 0, fMachineBPosition = 0, fMachineCPosition = 0;
+    float fWorkXPosition = 0, fWorkYPosition = 0, fWorkZPosition = 0, fWorkAPosition = 0, fWorkBPosition = 0, fWorkCPosition = 0;
 
 public:
     void Initialize();
@@ -77,10 +77,16 @@ void Machine::StartHomingSequence()
     HomeAxis(AXIS_Z); // First home the Z Axis
     HomeAxis(AXIS_X);
     HomeAxis(AXIS_Y);
+    HomeAxis(AXIS_A);
+    HomeAxis(AXIS_B);
+    HomeAxis(AXIS_C);
 
     fWorkXPosition = 0;
     fWorkYPosition = 0;
     fWorkZPosition = 0;
+    fWorkAPosition = 0;
+    fWorkBPosition = 0;
+    fWorkCPosition = 0;
 
     // Homing sequence finished!
     // Set machine status to idle !
@@ -104,6 +110,18 @@ void Machine::HomeAxis(EAxis axis)
 
     case AXIS_Z:
         fMachineZPosition = (HOME_Z_DIRECTION == MAX_POSITION) ? MAX_Z_TRAVEL * -1 : 0;
+        break;
+
+    case AXIS_A:
+        fMachineAPosition = 0;
+        break;
+
+    case AXIS_B:
+        fMachineBPosition = 0;
+        break;
+
+    case AXIS_C:
+        fMachineCPosition = 0;
         break;
     }
 }

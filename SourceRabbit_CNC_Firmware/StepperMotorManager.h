@@ -56,7 +56,7 @@ public:
   void MoveAxisToHomePosition(EAxis axis);
 
   void setStepperSpeed(EAxis axis, double feedRate);
-
+ 
   // Stepper Motor Manager Events
   void OnLimitSwitchOn_EventHandler() override;
   void OnLimitSwitchOff_EventHandler() override;
@@ -147,6 +147,27 @@ void StepperMotorManager::setStepperSpeed(EAxis axis, double feedRate)
 void StepperMotorManager::MoveAxisToHomePosition(EAxis axis)
 {
   // TODO
+
+  switch (axis)
+  {
+  case AXIS_X:
+    break;
+
+  case AXIS_Y:
+    break;
+
+  case AXIS_Z:
+    break;
+
+  case AXIS_A:
+    break;
+
+  case AXIS_B:
+    break;
+
+  case AXIS_C:
+    break;
+  }
 
   // Wait to touch Limit Switch
   while (!fLimitSwitchIsOn)
