@@ -32,10 +32,15 @@ SOFTWARE.
 #include "Manager.h"
 
 // Declare stepper motors
-AccelStepper STEPPER_MOTOR_X(AccelStepper::FULL2WIRE, STEPPER_X_STEP_PIN, STEPPER_X_STEP_PIN);
+AccelStepper STEPPER_MOTOR_X(AccelStepper::FULL2WIRE, STEPPER_X_STEP_PIN, STEPPER_X_DIR_PIN);
 AccelStepper STEPPER_MOTOR_Y(AccelStepper::FULL2WIRE, STEPPER_Y_STEP_PIN, STEPPER_Y_DIR_PIN);
 AccelStepper STEPPER_MOTOR_Z(AccelStepper::FULL2WIRE, STEPPER_Z_STEP_PIN, STEPPER_Z_DIR_PIN);
 AccelStepper STEPPER_MOTOR_A(AccelStepper::FULL2WIRE, STEPPER_A_STEP_PIN, STEPPER_A_DIR_PIN);
+
+#define STEPPER_X_MM_PER_STEP 1 / STEPPER_X_STEPS_PER_MM
+#define STEPPER_Y_MM_PER_STEP 1 / STEPPER_Y_STEPS_PER_MM
+#define STEPPER_Z_MM_PER_STEP 1 / STEPPER_Z_STEPS_PER_MM
+#define STEPPER_A_MM_PER_STEP 1 / STEPPER_A_STEPS_PER_MM
 
 // Up to 10 steppers can be handled as a group by MultiStepper
 MultiStepper STEPPERS;
@@ -56,7 +61,8 @@ public:
   void MoveAxisToHomePosition(EAxis axis);
 
   void setStepperSpeed(EAxis axis, double feedRate);
- 
+  void MoveSteppers(double positions[]);
+
   // Stepper Motor Manager Events
   void OnLimitSwitchOn_EventHandler() override;
   void OnLimitSwitchOff_EventHandler() override;
@@ -77,27 +83,31 @@ void StepperMotorManager::Initialize()
   STEPPER_MOTOR_X.setMaxSpeed(STEPPER_X_MAX_FEEDRATE / 60 * STEPPER_X_STEPS_PER_MM);
   STEPPER_MOTOR_X.setAcceleration(STEPPER_X_ACCELERATION);
   STEPPER_MOTOR_X.setMinPulseWidth(STEPPERS_MIN_PULSE_WIDTH_MICROSECONDS);
+  STEPPERS.addStepper(STEPPER_MOTOR_X);
 
   STEPPER_MOTOR_Y.setEnablePin(STEPPER_Y_ENABLE_PIN);
   STEPPER_MOTOR_Y.setMaxSpeed(STEPPER_Y_MAX_FEEDRATE / 60 * STEPPER_Y_STEPS_PER_MM);
   STEPPER_MOTOR_Y.setAcceleration(STEPPER_Y_ACCELERATION);
   STEPPER_MOTOR_Y.setMinPulseWidth(STEPPERS_MIN_PULSE_WIDTH_MICROSECONDS);
+  STEPPERS.addStepper(STEPPER_MOTOR_Y);
 
   STEPPER_MOTOR_Z.setEnablePin(STEPPER_Z_ENABLE_PIN);
   STEPPER_MOTOR_Z.setMaxSpeed(STEPPER_Z_MAX_FEEDRATE / 60 * STEPPER_Z_STEPS_PER_MM);
   STEPPER_MOTOR_Z.setAcceleration(STEPPER_Z_ACCELERATION);
   STEPPER_MOTOR_Z.setMinPulseWidth(STEPPERS_MIN_PULSE_WIDTH_MICROSECONDS);
+  STEPPERS.addStepper(STEPPER_MOTOR_Z);
 
   STEPPER_MOTOR_A.setEnablePin(STEPPER_A_ENABLE_PIN);
   STEPPER_MOTOR_A.setMaxSpeed(STEPPER_A_MAX_FEEDRATE / 60 * STEPPER_A_STEPS_PER_MM);
   STEPPER_MOTOR_A.setAcceleration(STEPPER_A_ACCELERATION);
   STEPPER_MOTOR_A.setMinPulseWidth(STEPPERS_MIN_PULSE_WIDTH_MICROSECONDS);
+  STEPPERS.addStepper(STEPPER_MOTOR_A);
 
 #ifdef STEPPERS_ALWAYS_ENABLED
-  STEPPER_MOTOR_X.enableOutputs();
-  STEPPER_MOTOR_Y.enableOutputs();
-  STEPPER_MOTOR_Z.enableOutputs();
-  STEPPER_MOTOR_A.enableOutputs();
+  FastDigitalWrite(STEPPER_X_ENABLE_PIN, LOW);
+  FastDigitalWrite(STEPPER_Y_ENABLE_PIN, LOW);
+  FastDigitalWrite(STEPPER_Z_ENABLE_PIN, LOW);
+  FastDigitalWrite(STEPPER_A_ENABLE_PIN, LOW);
 #endif
 }
 
@@ -140,6 +150,20 @@ void StepperMotorManager::setStepperSpeed(EAxis axis, double feedRate)
     // STEPPER_MOTOR_C.setSpeed(feedRate / 60 * STEPPER_C_STEPS_PER_MM);
     break;
   }
+}
+
+void StepperMotorManager::MoveSteppers(double positions[])
+{
+  // Convert positions to steps
+
+  long steps[4];
+  steps[1] = (long)(positions[1] * STEPPER_X_STEPS_PER_MM);
+  steps[2] = (long)(positions[2] * STEPPER_Y_STEPS_PER_MM);
+  steps[3] = (long)(positions[3] * STEPPER_Y_STEPS_PER_MM);
+  steps[4] = (long)(positions[4] * STEPPER_Y_STEPS_PER_MM);
+
+  STEPPERS.moveTo(steps);
+  STEPPERS.runSpeedToPosition(); // Blocks until all are in position
 }
 
 // The MoveAxisToHomePosition moves the axis to home direction

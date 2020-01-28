@@ -24,13 +24,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
+#include <AccelStepper.h>
+#include <MultiStepper.h>
 #include "BoardPinout.h"
 #include "Core.h"
 #include "Config.h"
 #include "EError.h"
 #include "EMachineStatus.h"
 #include "ECommands.h"
+#include "EAxis.h"
 #include "Events.h"
 #include "Manager.h"
 #include "SerialConnectionManager.h"
@@ -43,17 +45,17 @@ SOFTWARE.
 // MACHINE ALWAYS AT THE END
 #include "Machine.h"
 
-#line 43 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
+#line 45 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
 void setup();
-#line 76 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
+#line 78 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
 void loop();
-#line 89 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
+#line 94 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
 void serialEvent();
-#line 95 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
+#line 100 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
 void ParseReceivedMessageFromSerialConnection(String message);
-#line 128 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
+#line 133 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
 void EventHandler(uint8_t eventID);
-#line 43 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
+#line 45 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
 void setup()
 {
     // Initialize core always at the start of the  Setup() method
@@ -91,12 +93,15 @@ void loop()
 {
     ParseReceivedMessageFromSerialConnection(SerialConnectionManager::ACTIVE_INSTANCE.getFirstIncomingMessageFromQueue());
 
-    delay(1000);
+    double positions[4];
+    positions[0] = 1;
+    positions[1] = 0;
+    positions[3] = 0;
+    positions[4] = 0;
+    StepperMotorManager::ACTIVE_INSTANCE.MoveSteppers(positions);
 
-    StepperMotorManager::ACTIVE_INSTANCE.fStepperMotorX.Move(10);
-    delay(2000);
-    StepperMotorManager::ACTIVE_INSTANCE.fStepperMotorX.Move(-10);
-    delay(2000);
+    positions[0] = -1;
+    StepperMotorManager::ACTIVE_INSTANCE.MoveSteppers(positions);
 }
 
 // This is the asynchronous serial read

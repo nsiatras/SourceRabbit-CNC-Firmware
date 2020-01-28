@@ -1,3 +1,6 @@
+#ifndef EVENTS_H
+#define EVENTS_H
+
 #define EVENT_LIMIT_SWITCH_ON 1
 #define EVENT_LIMIT_SWITCH_OFF 2
 #define EVENT_TOUCH_PROBE_ON 3
@@ -31,4 +34,6 @@ String getEventNameFromID(int id)
         break;
     }
 }
+#endif
+
 #endif

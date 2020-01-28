@@ -45,7 +45,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 */
-# 25 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
+# 24 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino"
+# 25 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino" 2
 # 26 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino" 2
 # 27 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino" 2
 # 28 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino" 2
@@ -60,9 +61,11 @@ SOFTWARE.
 # 37 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino" 2
 # 38 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino" 2
 # 39 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino" 2
+# 40 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino" 2
+# 41 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino" 2
 
 // MACHINE ALWAYS AT THE END
-# 42 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino" 2
+# 44 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino" 2
 
 void setup()
 {
@@ -101,12 +104,15 @@ void loop()
 {
     ParseReceivedMessageFromSerialConnection(SerialConnectionManager::ACTIVE_INSTANCE.getFirstIncomingMessageFromQueue());
 
-    delay(1000);
+    double positions[4];
+    positions[0] = 1;
+    positions[1] = 0;
+    positions[3] = 0;
+    positions[4] = 0;
+    StepperMotorManager::ACTIVE_INSTANCE.MoveSteppers(positions);
 
-    StepperMotorManager::ACTIVE_INSTANCE.fStepperMotorX.Move(10);
-    delay(2000);
-    StepperMotorManager::ACTIVE_INSTANCE.fStepperMotorX.Move(-10);
-    delay(2000);
+    positions[0] = -1;
+    StepperMotorManager::ACTIVE_INSTANCE.MoveSteppers(positions);
 }
 
 // This is the asynchronous serial read

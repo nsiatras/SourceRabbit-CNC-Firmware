@@ -25,13 +25,6 @@ SOFTWARE.
 #ifndef CORE_H
 #define CORE_H
 
-// Axis array index values. Must start with 0 and be continuous.
-#define N_AXIS 3 // Number of axes
-#define X_AXIS 0 // Axis indexing value.
-#define Y_AXIS 1
-#define Z_AXIS 2
-#define A_AXIS 3
-
 #define MAX_POSITION true
 #define MIN_POSITION false
 

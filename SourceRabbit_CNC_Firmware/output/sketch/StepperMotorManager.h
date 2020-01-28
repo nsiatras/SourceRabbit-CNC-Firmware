@@ -23,7 +23,27 @@ SOFTWARE.
 */
 #ifndef STEPPERMOTORMANAGER_H
 #define STEPPERMOTORMANAGER_H
-#include "StepperMotor.h"
+#include <AccelStepper.h>
+#include <MultiStepper.h>
+#include "EError.h"
+#include "EMachineStatus.h"
+#include "EAxis.h"
+#include "Events.h"
+#include "Manager.h"
+
+// Declare stepper motors
+AccelStepper STEPPER_MOTOR_X(AccelStepper::FULL2WIRE, STEPPER_X_STEP_PIN, STEPPER_X_DIR_PIN);
+AccelStepper STEPPER_MOTOR_Y(AccelStepper::FULL2WIRE, STEPPER_Y_STEP_PIN, STEPPER_Y_DIR_PIN);
+AccelStepper STEPPER_MOTOR_Z(AccelStepper::FULL2WIRE, STEPPER_Z_STEP_PIN, STEPPER_Z_DIR_PIN);
+AccelStepper STEPPER_MOTOR_A(AccelStepper::FULL2WIRE, STEPPER_A_STEP_PIN, STEPPER_A_DIR_PIN);
+
+#define STEPPER_X_MM_PER_STEP 1 / STEPPER_X_STEPS_PER_MM
+#define STEPPER_Y_MM_PER_STEP 1 / STEPPER_Y_STEPS_PER_MM
+#define STEPPER_Z_MM_PER_STEP 1 / STEPPER_Z_STEPS_PER_MM
+#define STEPPER_A_MM_PER_STEP 1 / STEPPER_A_STEPS_PER_MM
+
+// Up to 10 steppers can be handled as a group by MultiStepper
+MultiStepper STEPPERS;
 
 class StepperMotorManager : public Manager
 {
@@ -33,12 +53,15 @@ private:
 
 public:
   static StepperMotorManager ACTIVE_INSTANCE; // Create a static Active Instance for the StepperMotorManager
-  StepperMotor fStepperMotorX, fStepperMotorY, fStepperMotorZ, fStepperMotorA;
+  //StepperMotor fStepperMotorX, fStepperMotorY, fStepperMotorZ, fStepperMotorA;
 
   void Initialize() override;
   void Reset() override;
 
-  void MoveAxisToHomePosition(int axis);
+  void MoveAxisToHomePosition(EAxis axis);
+
+  void setStepperSpeed(EAxis axis, double feedRate);
+  void MoveSteppers(double positions[]);
 
   // Stepper Motor Manager Events
   void OnLimitSwitchOn_EventHandler() override;
@@ -55,11 +78,37 @@ void StepperMotorManager::Initialize()
   // Call the parent Initialize
   Manager::Initialize();
 
-  // Initialize 4 Stepper motors (X,Y,Z and A axis)
-  fStepperMotorX.Initialize(STEPPER_X_STEP_PIN, STEPPER_X_DIR_PIN, STEPPER_X_ENABLE_PIN, STEPPER_X_STEPS_PER_MM, STEPPER_X_ACCELERATION, STEPPER_X_MAX_VELOCITY);
-  fStepperMotorY.Initialize(STEPPER_Y_STEP_PIN, STEPPER_Y_DIR_PIN, STEPPER_Y_ENABLE_PIN, STEPPER_Y_STEPS_PER_MM, STEPPER_Y_ACCELERATION, STEPPER_Y_MAX_VELOCITY);
-  fStepperMotorY.Initialize(STEPPER_Z_STEP_PIN, STEPPER_Z_DIR_PIN, STEPPER_Z_ENABLE_PIN, STEPPER_Z_STEPS_PER_MM, STEPPER_Z_ACCELERATION, STEPPER_Z_MAX_VELOCITY);
-  fStepperMotorY.Initialize(STEPPER_A_STEP_PIN, STEPPER_A_DIR_PIN, STEPPER_A_ENABLE_PIN, STEPPER_A_STEPS_PER_MM, STEPPER_A_ACCELERATION, STEPPER_A_MAX_VELOCITY);
+  // Set stepper motors parameters for 4 motors (X,Y,Z and A axis)
+  STEPPER_MOTOR_X.setEnablePin(STEPPER_X_ENABLE_PIN);
+  STEPPER_MOTOR_X.setMaxSpeed(STEPPER_X_MAX_FEEDRATE / 60 * STEPPER_X_STEPS_PER_MM);
+  STEPPER_MOTOR_X.setAcceleration(STEPPER_X_ACCELERATION);
+  STEPPER_MOTOR_X.setMinPulseWidth(STEPPERS_MIN_PULSE_WIDTH_MICROSECONDS);
+  STEPPERS.addStepper(STEPPER_MOTOR_X);
+
+  STEPPER_MOTOR_Y.setEnablePin(STEPPER_Y_ENABLE_PIN);
+  STEPPER_MOTOR_Y.setMaxSpeed(STEPPER_Y_MAX_FEEDRATE / 60 * STEPPER_Y_STEPS_PER_MM);
+  STEPPER_MOTOR_Y.setAcceleration(STEPPER_Y_ACCELERATION);
+  STEPPER_MOTOR_Y.setMinPulseWidth(STEPPERS_MIN_PULSE_WIDTH_MICROSECONDS);
+  STEPPERS.addStepper(STEPPER_MOTOR_Y);
+
+  STEPPER_MOTOR_Z.setEnablePin(STEPPER_Z_ENABLE_PIN);
+  STEPPER_MOTOR_Z.setMaxSpeed(STEPPER_Z_MAX_FEEDRATE / 60 * STEPPER_Z_STEPS_PER_MM);
+  STEPPER_MOTOR_Z.setAcceleration(STEPPER_Z_ACCELERATION);
+  STEPPER_MOTOR_Z.setMinPulseWidth(STEPPERS_MIN_PULSE_WIDTH_MICROSECONDS);
+  STEPPERS.addStepper(STEPPER_MOTOR_Z);
+
+  STEPPER_MOTOR_A.setEnablePin(STEPPER_A_ENABLE_PIN);
+  STEPPER_MOTOR_A.setMaxSpeed(STEPPER_A_MAX_FEEDRATE / 60 * STEPPER_A_STEPS_PER_MM);
+  STEPPER_MOTOR_A.setAcceleration(STEPPER_A_ACCELERATION);
+  STEPPER_MOTOR_A.setMinPulseWidth(STEPPERS_MIN_PULSE_WIDTH_MICROSECONDS);
+  STEPPERS.addStepper(STEPPER_MOTOR_A);
+
+#ifdef STEPPERS_ALWAYS_ENABLED
+  FastDigitalWrite(STEPPER_X_ENABLE_PIN, LOW);
+  FastDigitalWrite(STEPPER_Y_ENABLE_PIN, LOW);
+  FastDigitalWrite(STEPPER_Z_ENABLE_PIN, LOW);
+  FastDigitalWrite(STEPPER_A_ENABLE_PIN, LOW);
+#endif
 }
 
 // Reset the stepper motor manager
@@ -69,11 +118,80 @@ void StepperMotorManager::Reset()
   StepperMotorManager::ACTIVE_INSTANCE.Initialize();
 }
 
+// This method calculates and sets the speed of the stepper in steps/second
+// from the feedRate which is in mm/min
+void StepperMotorManager::setStepperSpeed(EAxis axis, double feedRate)
+{
+  long stepsPerSecond = 0;
+
+  switch (axis)
+  {
+  case AXIS_X:
+    STEPPER_MOTOR_X.setSpeed(feedRate / 60 * STEPPER_X_STEPS_PER_MM);
+    break;
+
+  case AXIS_Y:
+    STEPPER_MOTOR_Y.setSpeed(feedRate / 60 * STEPPER_Y_STEPS_PER_MM);
+    break;
+
+  case AXIS_Z:
+    STEPPER_MOTOR_Z.setSpeed(feedRate / 60 * STEPPER_Z_STEPS_PER_MM);
+    break;
+
+  case AXIS_A:
+    STEPPER_MOTOR_A.setSpeed(feedRate / 60 * STEPPER_A_STEPS_PER_MM);
+    break;
+
+  case AXIS_B:
+    // STEPPER_MOTOR_B.setSpeed(feedRate / 60 * STEPPER_B_STEPS_PER_MM);
+    break;
+
+  case AXIS_C:
+    // STEPPER_MOTOR_C.setSpeed(feedRate / 60 * STEPPER_C_STEPS_PER_MM);
+    break;
+  }
+}
+
+void StepperMotorManager::MoveSteppers(double positions[])
+{
+  // Convert positions to steps
+
+  long steps[4];
+  steps[1] = (long)(positions[1] * STEPPER_X_STEPS_PER_MM);
+  steps[2] = (long)(positions[2] * STEPPER_Y_STEPS_PER_MM);
+  steps[3] = (long)(positions[3] * STEPPER_Y_STEPS_PER_MM);
+  steps[4] = (long)(positions[4] * STEPPER_Y_STEPS_PER_MM);
+
+  STEPPERS.moveTo(steps);
+  STEPPERS.runSpeedToPosition(); // Blocks until all are in position
+}
+
 // The MoveAxisToHomePosition moves the axis to home direction
 // until the Limit Switch is triggered.
-void StepperMotorManager::MoveAxisToHomePosition(int axis)
+void StepperMotorManager::MoveAxisToHomePosition(EAxis axis)
 {
   // TODO
+
+  switch (axis)
+  {
+  case AXIS_X:
+    break;
+
+  case AXIS_Y:
+    break;
+
+  case AXIS_Z:
+    break;
+
+  case AXIS_A:
+    break;
+
+  case AXIS_B:
+    break;
+
+  case AXIS_C:
+    break;
+  }
 
   // Wait to touch Limit Switch
   while (!fLimitSwitchIsOn)

@@ -11,6 +11,21 @@
   },
   {
     "Sourcefile": "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\output\\sketch\\SourceRabbit_CNC_Firmware.ino.cpp",
+    "Include": "AccelStepper.h",
+    "Includepath": "D:\\Program Files (x86)\\Arduino\\libraries\\AccelStepper"
+  },
+  {
+    "Sourcefile": "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\output\\sketch\\SourceRabbit_CNC_Firmware.ino.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "D:\\Program Files (x86)\\Arduino\\libraries\\AccelStepper\\AccelStepper.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "D:\\Program Files (x86)\\Arduino\\libraries\\AccelStepper\\MultiStepper.cpp",
     "Include": "",
     "Includepath": ""
   }

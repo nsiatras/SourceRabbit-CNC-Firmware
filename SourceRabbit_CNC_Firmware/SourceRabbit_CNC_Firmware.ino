@@ -79,11 +79,15 @@ void loop()
 {
     ParseReceivedMessageFromSerialConnection(SerialConnectionManager::ACTIVE_INSTANCE.getFirstIncomingMessageFromQueue());
 
-    delay(1000);
-    //StepperMotorManager::ACTIVE_INSTANCE.MoveStepper(AXIS_X, 100, 1500);
-    delay(2000);
-    //StepperMotorManager::ACTIVE_INSTANCE.MoveStepper(AXIS_X, -100, 1500);
-    delay(2000);
+    double positions[4];
+    positions[0] = 1;
+    positions[1] = 0;
+    positions[3] = 0;
+    positions[4] = 0;
+    StepperMotorManager::ACTIVE_INSTANCE.MoveSteppers(positions);
+
+    positions[0] = -1;
+    StepperMotorManager::ACTIVE_INSTANCE.MoveSteppers(positions);
 }
 
 // This is the asynchronous serial read
