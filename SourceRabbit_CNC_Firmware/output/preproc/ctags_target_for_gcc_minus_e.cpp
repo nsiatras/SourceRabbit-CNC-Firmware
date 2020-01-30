@@ -67,6 +67,8 @@ SOFTWARE.
 // MACHINE ALWAYS AT THE END
 # 44 "d:\\_Development\\Github Repositories\\SourceRabbit-CNC-Firmware\\SourceRabbit_CNC_Firmware\\SourceRabbit_CNC_Firmware.ino" 2
 
+double positions[4];
+
 void setup()
 {
     // Initialize core always at the start of the  Setup() method
@@ -98,21 +100,33 @@ void setup()
     // EVERYTHING IS INITIALIZED
     // Send the welcome message to the PC Client
     SerialConnectionManager::ACTIVE_INSTANCE.SendData("SourceRabbit CNC Firmware 1.1");
+
+    positions[0] = 10.000;
+    positions[1] = 0;
+    positions[2] = 0;
+    positions[3] = 0;
+    StepperMotorManager::ACTIVE_INSTANCE.MoveSteppers(positions);
 }
 
 void loop()
 {
     ParseReceivedMessageFromSerialConnection(SerialConnectionManager::ACTIVE_INSTANCE.getFirstIncomingMessageFromQueue());
 
-    double positions[4];
-    positions[0] = 1;
-    positions[1] = 0;
-    positions[3] = 0;
-    positions[4] = 0;
-    StepperMotorManager::ACTIVE_INSTANCE.MoveSteppers(positions);
+    // Change direction at the limits
+    if (STEPPER_MOTOR_X.distanceToGo() == 0)
+    {
+        positions[0] = -positions[0];
+        positions[1] = -positions[1];
+        positions[2] = -positions[2];
+        positions[3] = -positions[3];
+        StepperMotorManager::ACTIVE_INSTANCE.MoveSteppers(positions);
+    }
 
-    positions[0] = -1;
-    StepperMotorManager::ACTIVE_INSTANCE.MoveSteppers(positions);
+    // Always run the motors
+    STEPPER_MOTOR_X.run();
+    STEPPER_MOTOR_Y.run();
+    STEPPER_MOTOR_Z.run();
+    STEPPER_MOTOR_A.run();
 }
 
 // This is the asynchronous serial read

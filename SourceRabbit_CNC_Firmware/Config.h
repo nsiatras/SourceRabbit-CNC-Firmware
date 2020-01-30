@@ -42,22 +42,22 @@ SOFTWARE.
 #define MAX_Y_TRAVEL 200
 #define MAX_Z_TRAVEL 180
 
-#define STEPPERS_MIN_PULSE_WIDTH_MICROSECONDS 100 // Microseconds
+#define STEPPERS_MIN_PULSE_WIDTH_MICROSECONDS 20 // Microseconds
 
-#define STEPPER_X_STEPS_PER_MM 200  // Steps / mm
-#define STEPPER_X_ACCELERATION 5   //mm/sec^2
-#define STEPPER_X_MAX_FEEDRATE 1500 // mm/min
+#define STEPPER_X_STEPS_PER_MM 800  // Steps / mm
+#define STEPPER_X_ACCELERATION 40   //mm/sec^2
+#define STEPPER_X_MAX_FEEDRATE 4000 // mm/min
 
 #define STEPPER_Y_STEPS_PER_MM 200  // Steps / mm
-#define STEPPER_Y_ACCELERATION 5   //mm/sec^2
+#define STEPPER_Y_ACCELERATION 40   //mm/sec^2
 #define STEPPER_Y_MAX_FEEDRATE 4000 // mm/min
 
 #define STEPPER_Z_STEPS_PER_MM 200  // Steps / mm
-#define STEPPER_Z_ACCELERATION 5   //mm/sec^2
+#define STEPPER_Z_ACCELERATION 40   //mm/sec^2
 #define STEPPER_Z_MAX_FEEDRATE 4000 // mm/min
 
 #define STEPPER_A_STEPS_PER_MM 200  // Steps / mm
-#define STEPPER_A_ACCELERATION 5   //mm/sec^2
+#define STEPPER_A_ACCELERATION 40   //mm/sec^2
 #define STEPPER_A_MAX_FEEDRATE 4000 // mm/min
 
 #define STEPPERS_ALWAYS_ENABLED // Uncomment to set Steppers Always enabled
